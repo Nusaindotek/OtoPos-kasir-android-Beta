@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>OtoPos Kasir</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1 id="nama-toko">OtoPos</h1>
+        <button onclick="bukaModal('modal-setting')">⚙️</button>
+    </header>
+
+    <main>
+        <!-- TOMBOL MENU -->
+        <div class="menu-grid">
+            <button onclick="bukaModal('modal-produk')" class="btn btn-green">+ Produk</button>
+            <button onclick="exportData()" class="btn btn-orange">Backup</button>
+            <button onclick="importData()" class="btn btn-blue">Restore</button>
+            <input type="file" id="input-file" accept=".json" style="display:none" onchange="handleImport(event)">
+        </div>
+
+        <!-- KASIR -->
+        <div class="card">
+            <h2>Kasir</h2>
+            <input type="text" id="input-produk" list="list-produk" placeholder="Ketik nama produk...">
+            <div class="row">
+                <input type="number" id="input-qty" value="1" min="1">
+                <button onclick="tambahKeranjang()" class="btn btn-green">TAMBAH</button>
+            </div>
+        </div>
+
+        <!-- KERANJANG -->
+        <div class="card dark">
+            <h2>Keranjang</h2>
+            <div id="list-keranjang"></div>
+            <div class="total">
+                <span>TOTAL</span>
+                <span id="total-harga">Rp 0</span>
+            </div>
+            <button onclick="checkout()" class="btn btn-green btn-besar">BAYAR</button>
+        </div>
+
+        <!-- DAFTAR PRODUK -->
+        <div class="card">
+            <h2>Daftar Produk</h2>
+            <div id="list-produk-tampil"></div>
+        </div>
+    </main>
+
+    <datalist id="list-produk"></datalist>
+
+    <!-- MODAL PRODUK -->
+    <div id="modal-produk" class="modal hidden">
+        <div class="modal-content">
+            <h3>Tambah Produk</h3>
+            <input id="nama-produk" placeholder="Nama Produk">
+            <input id="harga-produk" type="number" placeholder="Harga">
+            <input id="stok-produk" type="number" placeholder="Stok" value="0">
+            <div class="row">
+                <button onclick="tutupModal('modal-produk')" class="btn btn-gray">Batal</button>
+                <button onclick="simpanProduk()" class="btn btn-green">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SETTING -->
+    <div id="modal-setting" class="modal hidden">
+        <div class="modal-content">
+            <h3>Setting Toko</h3>
+            <input id="setting-nama" placeholder="Nama Toko">
+            <input id="setting-alamat" placeholder="Alamat">
+            <button onclick="simpanSetting()" class="btn btn-blue">Simpan Setting</button>
+            <button onclick="tutupModal('modal-setting')" class="btn btn-gray">Tutup</button>
+        </div>
+    </div>
+
+<script src="app.js"></script>
+</body>
+</html>
