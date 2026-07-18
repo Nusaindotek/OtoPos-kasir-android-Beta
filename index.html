@@ -2,110 +2,90 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTOPOS - PC Dashboard v2.8</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>OTOPOS - HP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Biar di HP bisa scroll, di PC tetap full */
-        @media (min-width: 1024px) {
-            body { height: 100vh; overflow: hidden; }
-        }
-       .btn-press:active { transform: scale(0.98); }
+      .btn-press:active { transform: scale(0.95); }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-2 sm:p-3 font-sans flex-col gap-3">
+<body class="bg-gray-100 min-h-screen p-2 font-sans flex-col gap-2">
 
-    <!-- TOP BAR - DI HP JADI 2 BARIS -->
-    <header class="bg-blue-600 text-white p-2 sm:p-3 rounded-xl shadow-md flex-col sm:flex-row flex justify-between items-start sm:items-center gap-2 flex-shrink-0">
-        <div class="flex items-center gap-3">
-            <span class="text-xl sm:text-2xl">🛠️</span>
-            <div><h1 class="text-base sm:text-lg font-black tracking-wider">OTOPOS</h1><p class="text-[10px] sm:text-xs text-blue-200" id="nama-toko-header">Bengkel HELICOPTER</p></div>
+    <!-- TOP BAR HP -->
+    <header class="bg-blue-600 text-white p-3 rounded-xl shadow-md flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="text-xl">🛠️</span>
+            <div>
+                <h1 class="text-base font-black">OTOPOS</h1>
+                <p class="text-[10px] text-blue-200" id="nama-toko-header">Bengkel HELICOPTER</p>
+            </div>
         </div>
-        <div class="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-bold w-full sm:w-auto justify-end">
-       
-            <button onclick="toggleModal('input-modal')" class="bg-orange-500 hover:bg-orange-600 btn-press shadow-md px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg flex items-center gap-1 sm:gap-2">
-                <span class="hidden sm:inline bg-white text-orange-600 px-1.5 rounded text-xs font-black">F5</span> Input
-            </button>
-            <button onclick="toggleModal('settings-modal')" class="bg-blue-800 hover:bg-blue-900 btn-press shadow-md px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg flex items-center gap-1 sm:gap-2">
-                <span class="hidden sm:inline bg-white text-blue-800 px-1.5 rounded text-xs font-black">F4</span> Setting
-            </button>
+        <div class="flex items-center gap-1">
+            <span class="bg-blue-700 px-2 py-1 rounded-lg text-xs">👤 Admin</span>
+            <button onclick="toggleModal('settings-modal')" class="bg-blue-800 p-2 rounded-lg">⚙️</button>
         </div>
     </header>
 
-    <!-- WRAPPER UTAMA - DI HP JADI 1 KOLOM -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-0">
-
-        <!-- SIDE KIRI 70%: AREA OPERASIONAL - DI HP MUNCUL PERTAMA -->
-        <main class="lg:col-span-8 bg-white rounded-xl shadow-md border p-3 sm:p-4 flex flex-col min-h-0 order-1">
-            <div class="grid grid-cols-2 p-1 bg-gray-100 rounded-xl border mb-3 flex-shrink-0">
-                <button id="tab-servis" onclick="setMode('servis')" class="btn-press py-2 sm:py-2.5 rounded-lg font-black text-xs sm:text-sm flex justify-center items-center gap-1 sm:gap-2 tab-active bg-red-600 text-white shadow-lg">
-                    <span class="hidden sm:inline bg-white/20 px-1.5 rounded text-xs">F2</span> MODE SERVIS
-                </button>
-                <button id="tab-part" onclick="setMode('part')" class="btn-press py-2 sm:py-2.5 rounded-lg font-black text-xs sm:text-sm flex justify-center items-center gap-1 sm:gap-2 text-gray-500 hover:text-gray-800">
-                    <span class="hidden sm:inline bg-gray-200 px-1.5 rounded text-xs">F3</span> DIRECT PART
-                </button>
-            </div>
-
-            <!-- AREA SERVIS -->
-            <div id="area-servis" class="flex-1 flex-col min-h-0">
-                <div class="flex justify-between items-center mb-2 flex-shrink-0">
-                    <h3 class="font-black text-xs sm:text-sm text-red-600">DAFTAR ANTRIAN SERVIS</h3>
-                    <button onclick="toggleModal('antrian-modal')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold">+ Antrian</button>
-                </div>
-                <div id="list-antrian" class="space-y-2 flex-1 overflow-y-auto mb-3"></div>
-                <div id="form-servis-detail" class="hidden border-t pt-3 flex-shrink-0"></div>
-            </div>
-
-            <!-- AREA PART -->
-            <div id="area-part" class="hidden flex-1 flex flex-col min-h-0">
-                 <h3 class="font-black text-xs sm:text-sm text-emerald-600 flex-shrink-0 mb-3">FORM JUAL LANGSUNG</h3>
-                 <div>
-                    <label class="block text-[10px] sm:text-xs font-black text-gray-500 mb-1">NAMA PEMBELI (OPSIONAL)</label>
-                    <input type="text" id="input-pembeli" placeholder="Contoh: Pak Budi" class="w-full border-gray-300 bg-emerald-50/30 rounded-lg p-2 sm:p-2.5 text-xs sm:text-sm outline-none">
-                </div>
-            </div>
-
-            <!-- INPUT MANUAL -->
-            <div id="input-manual-part" class="mt-auto pt-3 border-t">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                    <div class="sm:col-span-2">
-                        <label class="block text-[10px] sm:text-xs font-black text-gray-500 mb-1">CARI PRODUK (SISA STOK)</label>
-                        <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="w-full border border-gray-300 rounded-lg p-2 sm:p-2.5 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                        <datalist id="list-produk"></datalist>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] sm:text-xs font-black text-gray-500 mb-1">QTY</label>
-                        <input type="number" id="input-qty" value="1" min="1" class="w-full border border-gray-300 rounded-lg p-2 sm:p-2.5 text-xs sm:text-sm text-center outline-none">
-                    </div>
-                </div>
-                <button id="btn-tambah" onclick="tambahKeBilling()" class="btn-press w-full mt-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-lg text-white font-black py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm flex justify-center items-center gap-2">
-                    ➕ TAMBAH <span class="hidden sm:inline bg-white/20 px-1.5 rounded text-xs">Ctrl+Enter</span>
-                </button>
-            </div>
-        </main>
-
-        <!-- SIDE KANAN 30%: KASIR PANEL - DI HP MUNCUL KEDUA -->
-        <aside class="lg:col-span-4 bg-slate-900 text-white rounded-xl shadow-md p-3 sm:p-4 flex-col justify-between border border-slate-800 min-h-[400px] lg:min-h-0 order-2">
-            <div class="flex-1 flex-col min-h-0">
-                <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-3 flex-shrink-0">
-                    <h2 class="font-black text-sm sm:text-md tracking-wide text-emerald-400">🛒 BILLING</h2>
-                    <span id="billing-type" class="text-[10px] sm:text-xs bg-red-900/50 text-red-300 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border-red-700 font-bold">SERVIS</span>
-                </div>
-                <div id="cart-items" class="space-y-2 flex-1 overflow-y-auto pr-1"></div>
-            </div>
-            <div class="border-t border-slate-700 pt-3 mt-3 space-y-3 flex-shrink-0">
-                <div class="flex justify-between items-center"><span class="text-xs sm:text-sm font-bold text-slate-400">TOTAL:</span><span id="cart-total" class="text-xl sm:text-2xl font-black text-emerald-400">Rp 0</span></div>
-                <div><label class="block text-xs sm:text-sm font-bold text-slate-400 mb-2">BAYAR</label><div class="grid grid-cols-3 gap-2"><button onclick="setPayment('Tunai')" class="btn-pay btn-press bg-slate-800 border border-emerald-500/50 text-emerald-400 text-[10px] sm:text-xs font-bold py-2 rounded-lg">💵 Tunai</button><button onclick="setPayment('QRIS')" class="btn-pay btn-press bg-slate-800 border border-slate-700 text-slate-400 text-[10px] sm:text-xs font-bold py-2 rounded-lg">📱 QRIS</button><button onclick="setPayment('Debit')" class="btn-pay btn-press bg-slate-800 border border-slate-700 text-slate-400 text-[10px] sm:text-xs font-bold py-2 rounded-lg">💳 Debit</button></div></div>
-                <button onclick="prosesCheckout()" class="btn-press w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 shadow-xl text-slate-950 font-black py-3 sm:py-3.5 rounded-xl text-xs sm:text-sm flex justify-center items-center gap-2">
-                    🟩 SELESAI <span class="hidden sm:inline bg-black/20 px-1.5 rounded text-xs">Ctrl+P</span>
-                </button>
-            </div>
-        </aside>
+    <!-- TAB MODE -->
+    <div class="grid grid-cols-2 gap-2">
+        <button id="tab-servis" onclick="setMode('servis')" class="btn-press py-3 rounded-xl font-black text-sm bg-red-600 text-white shadow-md">🔴 SERVIS</button>
+        <button id="tab-part" onclick="setMode('part')" class="btn-press py-3 rounded-xl font-black text-sm bg-gray-200 text-gray-600">🟢 JUAL PART</button>
     </div>
 
-    <!-- MODAL DLL TETAP SAMA... -->
-    <!-- KODE MODAL KAMU GAK PERLU DIUBAH -->
+    <!-- AREA UTAMA -->
+    <main class="bg-white rounded-xl shadow-md border p-3 flex-1 flex-col gap-3 min-h-0">
+
+        <!-- AREA SERVIS -->
+        <div id="area-servis">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="font-black text-sm text-red-600">ANTRIAN SERVIS</h3>
+                <button onclick="toggleModal('antrian-modal')" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">+ Antrian</button>
+            </div>
+            <div id="list-antrian" class="space-y-2 h-32 overflow-y-auto mb-3"></div>
+            <div id="form-servis-detail" class="hidden"></div>
+        </div>
+
+        <!-- AREA PART -->
+        <div id="area-part" class="hidden">
+             <h3 class="font-black text-sm text-emerald-600 mb-2">JUAL LANGSUNG</h3>
+             <input type="text" id="input-pembeli" placeholder="Nama Pembeli" class="w-full border rounded-lg p-2 text-sm">
+        </div>
+
+        <!-- INPUT PRODUK -->
+        <div id="input-manual-part" class="mt-auto pt-3 border-t">
+            <label class="block text-xs font-black text-gray-500 mb-1">CARI PRODUK</label>
+            <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="w-full border rounded-lg p-2.5 text-sm mb-2">
+            <div class="grid grid-cols-3 gap-2">
+                <div class="col-span-2">
+                    <label class="block text-xs font-black text-gray-500 mb-1">QTY</label>
+                    <input type="number" id="input-qty" value="1" min="1" class="w-full border rounded-lg p-2.5 text-sm text-center">
+                </div>
+                <div class="flex items-end">
+                    <button id="btn-tambah" onclick="tambahKeBilling()" class="btn-press w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-sm">➕</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- KASIR PANEL HP -->
+    <aside class="bg-slate-900 text-white rounded-xl shadow-md p-3 flex-col gap-3">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+            <h2 class="font-black text-sm text-emerald-400">🛒 BILLING</h2>
+            <span id="billing-type" class="text-[10px] bg-red-900/50 text-red-300 px-2 py-1 rounded-full">SERVIS</span>
+        </div>
+        <div id="cart-items" class="space-y-2 max-h-40 overflow-y-auto"></div>
+        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">TOTAL:</span><span id="cart-total" class="text-xl font-black text-emerald-400">Rp 0</span></div>
+
+        <div class="grid grid-cols-3 gap-2">
+            <button onclick="setPayment('Tunai')" class="btn-pay bg-slate-800 border border-emerald-500/50 text-emerald-400 text-xs font-bold py-2 rounded-lg">💵</button>
+            <button onclick="setPayment('QRIS')" class="btn-pay bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold py-2 rounded-lg">📱</button>
+            <button onclick="setPayment('Debit')" class="btn-pay bg-slate-800 border-slate-700 text-slate-400 text-xs font-bold py-2 rounded-lg">💳</button>
+        </div>
+        <button onclick="prosesCheckout()" class="btn-press w-full bg-emerald-500 text-slate-950 font-black py-3 rounded-xl text-sm">SELESAI</button>
+    </aside>
+
+    <!-- MODAL KAMU TETAP PAKE YANG LAMA, TINGGAL COPY -->
 
     <script src="app.js"></script>
 </body>
