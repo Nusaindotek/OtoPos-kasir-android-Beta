@@ -1,41 +1,47 @@
-<div id="settings-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl w-full max-w-lg p-5 max-h-[80vh] overflow-y-auto">
-        <h3 class="font-black mb-3">⚙️ PENGATURAN</h3>
-        
-        <!-- Tab Navigation -->
-        <div class="flex border-b mb-3 text-xs overflow-x-auto">
-            <button onclick="openTab('tab-mekanik', event)" class="tab-btn px-3 py-2 border-b-2 border-blue-600 text-blue-600 font-bold">Mekanik</button>
-            <button onclick="openTab('tab-toko', event)" class="tab-btn px-3 py-2 border-b-2 border-transparent font-bold">Toko</button>
-            <button onclick="openTab('tab-data', event)" class="tab-btn px-3 py-2 border-b-2 border-transparent font-bold">Data</button>
-            <button onclick="openTab('tab-laporan', event); generateLaporan();" class="tab-btn px-3 py-2 border-b-2 border-transparent font-bold">Laporan</button>
-        </div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTOPOS</title>
+    <!-- PASTIKAN SCRIPT INI ADA -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-2">
 
-        <!-- Tab Contents -->
-        <div id="tab-mekanik" class="tab-content text-sm"><div id="list-mekanik"></div></div>
-        
-        <div id="tab-toko" class="tab-content hidden space-y-2">
-            <label class="block text-[10px] font-bold text-gray-500 uppercase">Nama Bengkel</label>
-            <input type="text" id="setting-nama" class="w-full border p-2 rounded text-sm">
-            <label class="block text-[10px] font-bold text-gray-500 uppercase">Alamat</label>
-            <input type="text" id="setting-alamat" class="w-full border p-2 rounded text-sm">
-            <label class="block text-[10px] font-bold text-gray-500 uppercase">No Telp</label>
-            <input type="text" id="setting-telp" class="w-full border p-2 rounded text-sm">
-            <label class="block text-[10px] font-bold text-gray-500 uppercase">Footer Struk</label>
-            <input type="text" id="setting-footer" class="w-full border p-2 rounded text-sm">
-            <button onclick="simpanSettingToko()" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold mt-2">Simpan Data Toko</button>
-        </div>
+    <!-- MODAL SETTINGS (Versi Sederhana & Aman) -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-2 z-50">
+        <div class="bg-white rounded-xl w-full max-w-md p-4 shadow-2xl">
+            <h3 class="font-bold mb-4 text-lg border-b pb-2">⚙️ PENGATURAN</h3>
+            
+            <!-- Tab -->
+            <div class="flex gap-1 mb-4 text-xs font-bold border-b pb-2">
+                <button onclick="openTab('tab-mekanik', event)" class="px-2 py-1 bg-gray-100 rounded">Mekanik</button>
+                <button onclick="openTab('tab-toko', event)" class="px-2 py-1 bg-gray-100 rounded">Toko</button>
+            </div>
 
-        <div id="tab-data" class="tab-content hidden space-y-2">
-            <textarea id="csv-input" class="w-full h-20 border p-2 text-xs" placeholder="Nama,Harga,Stok"></textarea>
-            <button onclick="handleImportCSV()" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold">Import CSV</button>
-            <button onclick="exportBackup()" class="w-full bg-emerald-600 text-white py-2 rounded text-sm font-bold">Backup JSON</button>
-        </div>
+            <!-- Konten -->
+            <div id="tab-mekanik" class="tab-content text-sm">
+                <div id="list-mekanik">List Mekanik...</div>
+            </div>
 
-        <div id="tab-laporan" class="tab-content hidden text-sm">
-            <div id="lap-total-jual" class="font-bold"></div>
-            <button onclick="resetLaporan()" class="w-full bg-red-600 text-white p-2 mt-2 rounded">Hapus Laporan</button>
-        </div>
+            <div id="tab-toko" class="tab-content hidden space-y-3">
+                <input type="text" id="setting-nama" placeholder="Nama Bengkel" class="w-full border p-2 rounded">
+                <input type="text" id="setting-alamat" placeholder="Alamat" class="w-full border p-2 rounded">
+                <button onclick="simpanSettingToko()" class="w-full bg-blue-600 text-white p-2 rounded font-bold">Simpan</button>
+            </div>
 
-        <button onclick="toggleModal('settings-modal')" class="w-full bg-gray-200 p-2 mt-3 rounded text-sm">Tutup</button>
+            <button onclick="toggleModal('settings-modal')" class="w-full bg-gray-300 p-2 mt-4 rounded font-bold">Tutup</button>
+        </div>
     </div>
-</div>
+
+    <script src="app.js"></script>
+    <script>
+        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+        function openTab(id, event) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
