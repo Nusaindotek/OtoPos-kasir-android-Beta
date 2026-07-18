@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OTOPOS - PC Dashboard v2.8</title>
-    <!-- PWA CONFIG -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,18 +11,122 @@
 </head>
 <body class="bg-gray-100 min-h-screen lg:h-screen p-3 font-sans flex flex-col gap-3 lg:overflow-hidden">
 
-    <!-- [SAMA SEPERTI KODE SEBELUMNYA, GUNAKAN STRUKTUR INDEX.HTML YANG SAYA KIRIMKAN DI CHAT SEBELUMNYA] -->
-    <!-- (Pastikan semua struktur header, main, aside, dan modal tetap sama seperti yang kita bahas di atas) -->
+    <header class="bg-blue-600 text-white p-3 rounded-xl shadow-md flex justify-between items-center flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🛠️</span>
+            <div><h1 class="text-lg font-black tracking-wider">OTOPOS</h1><p class="text-xs text-blue-200" id="nama-toko-header">Bengkel HELICOPTER</p></div>
+        </div>
+        <div class="flex items-center gap-2 text-sm font-bold">
+            <span class="bg-blue-700 px-3 py-1.5 rounded-lg">👤 Admin</span>
+            <button onclick="toggleModal('input-modal')" class="bg-orange-500 hover:bg-orange-600 btn-press shadow-md px-3 py-2 rounded-lg flex items-center gap-2"><span class="bg-white text-orange-600 px-1.5 rounded text-xs font-black">F5</span> Input Part</button>
+            <button onclick="toggleModal('settings-modal')" class="bg-blue-800 hover:bg-blue-900 btn-press shadow-md px-3 py-2 rounded-lg flex items-center gap-2"><span class="bg-white text-blue-800 px-1.5 rounded text-xs font-black">F4</span> Setting</button>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-12 gap-3 flex-1 min-h-0">
+        <main class="col-span-12 lg:col-span-8 bg-white rounded-xl shadow-md border p-4 flex flex-col min-h-0">
+            <div class="grid grid-cols-2 p-1 bg-gray-100 rounded-xl border mb-3 flex-shrink-0">
+                <button id="tab-servis" onclick="setMode('servis')" class="btn-press py-2.5 rounded-lg font-black text-sm flex justify-center items-center gap-2 tab-active bg-red-600 text-white shadow-lg"><span class="bg-white/20 px-1.5 rounded text-xs">F2</span> MODE SERVIS</button>
+                <button id="tab-part" onclick="setMode('part')" class="btn-press py-2.5 rounded-lg font-black text-sm flex justify-center items-center gap-2 text-gray-500 hover:text-gray-800"><span class="bg-gray-200 px-1.5 rounded text-xs">F3</span> DIRECT PART</button>
+            </div>
+            <div id="area-servis" class="flex-1 flex flex-col min-h-0">
+                <div class="flex justify-between items-center mb-2 flex-shrink-0">
+                    <h3 class="font-black text-sm text-red-600">DAFTAR ANTRIAN SERVIS</h3>
+                    <button onclick="toggleModal('antrian-modal')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-3 py-1.5 rounded-lg text-xs font-bold">+ Tambah Antrian</button>
+                </div>
+                <div id="list-antrian" class="space-y-2 flex-1 overflow-y-auto mb-3"></div>
+                <div id="form-servis-detail" class="hidden border-t pt-3 flex-shrink-0"></div>
+            </div>
+            <div id="area-part" class="hidden flex-1 flex flex-col min-h-0">
+                 <h3 class="font-black text-sm text-emerald-600 flex-shrink-0 mb-3">FORM JUAL LANGSUNG</h3>
+                 <div>
+                    <label class="block text-xs font-black text-gray-500 mb-1">NAMA PEMBELI (OPSIONAL)</label>
+                    <input type="text" id="input-pembeli" placeholder="Contoh: Pak Budi" class="w-full border border-gray-300 bg-emerald-50/30 rounded-lg p-2.5 text-sm outline-none">
+                </div>
+            </div>
+            <div id="input-manual-part" class="mt-auto pt-3 border-t">
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-black text-gray-500 mb-1">CARI PRODUK (MENAMPILKAN SISA STOK)</label>
+                        <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        <datalist id="list-produk"></datalist>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-gray-500 mb-1">QTY</label>
+                        <input type="number" id="input-qty" value="1" min="1" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm text-center outline-none">
+                    </div>
+                </div>
+                <button id="btn-tambah" onclick="tambahKeBilling()" class="btn-press w-full mt-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-lg text-white font-black py-3 rounded-xl text-sm flex justify-center items-center gap-2">➕ TAMBAH KE KASIR <span class="bg-white/20 px-1.5 rounded text-xs">Ctrl + Enter</span></button>
+            </div>
+        </main>
+        <aside class="col-span-12 lg:col-span-4 bg-slate-900 text-white rounded-xl shadow-md p-4 flex flex-col justify-between border border-slate-800 min-h-0">
+            <div class="flex-1 flex flex-col min-h-0">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-3 flex-shrink-0">
+                    <h2 class="font-black text-md tracking-wide text-emerald-400">🛒 BILLING</h2>
+                    <span id="billing-type" class="text-xs bg-red-900/50 text-red-300 px-2.5 py-1 rounded-full border border-red-700 font-bold">SERVIS</span>
+                </div>
+                <div id="cart-items" class="space-y-2 flex-1 overflow-y-auto pr-1"></div>
+            </div>
+            <div class="border-t border-slate-700 pt-3 mt-3 space-y-3 flex-shrink-0">
+                <div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-400">TOTAL:</span><span id="cart-total" class="text-2xl font-black text-emerald-400">Rp 0</span></div>
+                <div><label class="block text-sm font-bold text-slate-400 mb-2">BAYAR</label><div class="grid grid-cols-3 gap-2"><button onclick="setPayment('Tunai')" class="btn-pay btn-press bg-slate-800 border border-emerald-500/50 text-emerald-400 text-xs font-bold py-2 rounded-lg">💵 Tunai</button><button onclick="setPayment('QRIS')" class="btn-pay btn-press bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold py-2 rounded-lg">📱 QRIS</button><button onclick="setPayment('Debit')" class="btn-pay btn-press bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold py-2 rounded-lg">💳 Debit</button></div></div>
+                <button onclick="prosesCheckout()" class="btn-press w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 shadow-xl text-slate-950 font-black py-3.5 rounded-xl text-sm flex justify-center items-center gap-2">🟩 SELESAI & CETAK <span class="bg-black/20 px-1.5 rounded text-xs">Ctrl + P</span></button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- SEMUA MODAL -->
+    <div id="antrian-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-5"><h3 class="font-black mb-3 text-red-600">+ TAMBAH ANTRIAN SERVIS</h3><div class="space-y-2"><input type="text" id="input-nopol-baru" placeholder="Nopol: D 1234 AB" class="w-full border p-2.5 rounded-lg text-sm uppercase"><input type="text" id="input-motor-baru" placeholder="Motor: Honda Beat" class="w-full border p-2.5 rounded-lg text-sm"></div><button onclick="tambahAntrian()" class="w-full bg-red-600 hover:bg-red-700 btn-press text-white py-2 rounded-lg font-bold text-sm mt-3">Masukkan Antrian</button><button onclick="toggleModal('antrian-modal')" class="w-full bg-gray-200 hover:bg-gray-300 btn-press py-2 rounded-lg font-bold text-xs mt-2">Batal</button></div>
+    </div>
+    <div id="input-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-5">
+            <h3 class="font-black mb-3 text-orange-600">➕ INPUT SPAREPART CEPAT</h3>
+            <div class="space-y-2"><input type="text" id="input-part-name" placeholder="Nama Part: Oli Gardan" class="w-full border p-2.5 rounded-lg text-sm"><div class="grid grid-cols-2 gap-2"><input type="number" id="input-part-price" placeholder="Harga Jual" class="w-full border p-2.5 rounded-lg text-sm"><input type="number" id="input-part-stock" placeholder="Stok Awal" value="0" class="w-full border p-2.5 rounded-lg text-sm"></div></div>
+            <div class="text-xs text-gray-500 mt-2 max-h-20 overflow-y-auto" id="last-input-list"></div>
+            <div class="flex gap-2 mt-3"><button onclick="handleQuickAdd(true)" class="w-full bg-orange-500 hover:bg-orange-600 btn-press text-white py-2 rounded-lg font-bold text-sm">Simpan & Lagi</button><button onclick="handleQuickAdd(false)" class="w-full bg-orange-700 hover:bg-orange-800 btn-press text-white py-2 rounded-lg font-bold text-sm">Simpan</button></div><button onclick="toggleModal('input-modal')" class="w-full bg-gray-200 hover:bg-gray-300 btn-press py-2 rounded-lg font-bold text-xs mt-2">Tutup</button></div>
+    </div>
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-5 max-h-[90vh] overflow-y-auto">
+            <h3 class="font-black mb-3">⚙️ PENGATURAN</h3>
+            <div class="flex border-b mb-3">
+                <button onclick="openTab('tab-mekanik', event)" class="tab-btn px-4 py-2 text-sm font-bold border-b-2 border-blue-600 text-blue-600">Data Mekanik</button>
+                <button onclick="openTab('tab-toko', event)" class="tab-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">Data Toko</button>
+                <button onclick="openTab('tab-data', event)" class="tab-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">Manajemen Data</button>
+                <button onclick="openTab('tab-laporan', event); generateLaporan();" class="tab-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">Laporan</button>
+            </div>
+            <div id="tab-mekanik" class="tab-content"><button onclick="tambahMekanik()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold mb-2">+ Tambah Mekanik</button><div id="list-mekanik" class="text-xs space-y-1"></div></div>
+            <div id="tab-toko" class="tab-content hidden space-y-2"><input type="text" id="setting-nama" placeholder="Nama Bengkel" class="w-full border p-2 rounded text-sm"><input type="text" id="setting-alamat" placeholder="Alamat" class="w-full border p-2 rounded text-sm"><input type="text" id="setting-telp" placeholder="No Telp" class="w-full border p-2 rounded text-sm"><input type="text" id="setting-footer" placeholder="Footer Struk" class="w-full border p-2 rounded text-sm"><button onclick="simpanSettingToko()" class="w-full bg-blue-600 text-white py-2 rounded font-bold text-sm">Simpan Data Toko</button></div>
+            <div id="tab-data" class="tab-content hidden space-y-2"><textarea id="csv-input" class="w-full h-20 border p-2 text-xs" placeholder="Nama,Harga,Stok&#10;Oli MPX,55000,10"></textarea><button onclick="handleImportCSV()" class="w-full bg-blue-600 text-white py-2 rounded font-bold text-xs">Import CSV</button><button onclick="exportBackup()" class="w-full bg-emerald-600 text-white py-2 rounded font-bold text-xs">Export Backup.json</button></div>
+            <div id="tab-laporan" class="tab-content hidden space-y-3">
+                <div class="grid grid-cols-3 gap-2 text-center"><div class="bg-blue-50 p-2 rounded-lg border border-blue-100"><p class="text-[10px] font-bold text-gray-500">PENJUALAN</p><p id="lap-total-jual" class="font-black text-blue-700 text-sm">Rp 0</p></div><div class="bg-emerald-50 p-2 rounded-lg border border-emerald-100"><p class="text-[10px] font-bold text-gray-500">GAJI</p><p id="lap-total-jasa" class="font-black text-emerald-700 text-sm">Rp 0</p></div><div class="bg-red-50 p-2 rounded-lg border border-red-100"><p class="text-[10px] font-bold text-gray-500">PART</p><p id="lap-total-item" class="font-black text-red-700 text-sm">0 Pcs</p></div></div>
+                <h4 class="font-bold text-xs mt-2 border-b pb-1 text-gray-600">Mekanik</h4><div id="list-lap-mekanik" class="grid grid-cols-2 gap-2 text-[10px]"></div>
+                <h4 class="font-bold text-xs mt-2 border-b pb-1 text-gray-600">Riwayat Penjualan</h4><div id="list-lap-transaksi" class="max-h-32 overflow-y-auto space-y-1 text-xs border p-2 rounded-lg bg-gray-50"></div>
+                <h4 class="font-bold text-xs mt-2 border-b pb-1 text-gray-600">Stok</h4><div id="list-lap-stok" class="max-h-32 overflow-y-auto space-y-1 text-xs border p-2 rounded-lg bg-gray-50"></div>
+                <button onclick="resetLaporan()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold text-xs mt-2">Hapus Laporan</button>
+            </div>
+            <button onclick="toggleModal('settings-modal')" class="w-full bg-gray-200 hover:bg-gray-300 btn-press py-2 rounded font-bold text-xs mt-3">Tutup</button>
+        </div>
+    </div>
+    <div id="gaji-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[60]">
+        <div class="bg-white rounded-2xl w-full max-w-md p-5 flex flex-col max-h-[85vh]">
+            <h3 class="font-black text-md text-blue-600 mb-1">💳 DETAIL PENGGAJIAN MEKANIK</h3>
+            <p id="detail-gaji-nama" class="font-black text-lg text-gray-800 border-b pb-2"></p>
+            <div class="my-3 grid grid-cols-2 gap-2 text-center"><div class="bg-blue-50 p-2 rounded-lg border border-blue-100"><p class="text-[10px] text-gray-500 font-bold">TOTAL SERVIS</p><p id="detail-gaji-servis" class="font-black text-blue-700 text-lg">0</p></div><div class="bg-emerald-50 p-2 rounded-lg border border-emerald-100"><p class="text-[10px] text-gray-500 font-bold">UPAH JASA</p><p id="detail-gaji-total" class="font-black text-emerald-700 text-lg">Rp 0</p></div></div>
+            <p class="text-[10px] font-black text-gray-400 mb-1">RIWAYAT</p>
+            <div id="detail-gaji-riwayat" class="flex-1 overflow-y-auto space-y-1.5 border p-2 rounded-lg bg-gray-50 text-xs"></div>
+            <div class="flex gap-2 mt-4"><button id="btn-print-gaji" class="w-full bg-emerald-600 hover:bg-emerald-700 btn-press text-white py-2.5 rounded-lg font-bold text-xs flex justify-center items-center gap-1">🖨️ Cetak</button><button id="btn-reset-gaji" class="w-full bg-red-600 hover:bg-red-700 btn-press text-white py-2.5 rounded-lg font-bold text-xs">🔄 Reset</button></div>
+            <button onclick="toggleModal('gaji-modal')" class="w-full bg-gray-200 hover:bg-gray-300 btn-press py-2 rounded-lg font-bold text-xs mt-2">Tutup</button>
+        </div>
+    </div>
+
+    <!-- PRINT AREAS -->
+    <div id="print-receipt" class="hidden font-mono p-2 w-[58mm] text-[9px]"><div class="text-center font-bold" id="print-nama-toko"></div><div class="text-center" id="print-alamat-toko"></div><hr class="my-1 border-dashed"><div id="print-info"></div><hr class="my-1 border-dashed"><div id="print-items"></div><hr class="my-1 border-dashed"><div>Bayar: <span id="print-payment"></span></div><div class="font-bold text-right" id="print-total"></div><div class="text-center mt-1" id="print-footer"></div></div>
+    <div id="print-payroll" class="hidden font-mono p-2 w-[58mm] text-[9px]"><div class="text-center font-bold" id="payroll-nama-toko"></div><div class="text-center text-[8px]" id="payroll-alamat-toko"></div><hr class="my-1 border-dashed"><div class="text-center font-bold">SLIP GAJI</div><div class="my-1">Mekanik : <span id="payroll-nama-mekanik"></span><br>Dicetak : <span id="payroll-waktu-cetak"></span></div><hr class="my-1 border-dashed"><div id="payroll-items" class="space-y-1"></div><hr class="my-1 border-dashed"><div class="flex justify-between"><span>Total Kerja:</span><span id="payroll-total-servis">0x</span></div><div class="flex justify-between font-bold"><span>TOTAL GAJI:</span><span id="payroll-total-gaji">Rp 0</span></div><hr class="my-1 border-dashed"><div class="text-center mt-2">Tanda Tangan,<br><br><br>(....................)</div></div>
 
     <script src="app.js"></script>
-
-    <!-- SCRIPT DAFTAR SERVICE WORKER -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js');
-        });
-      }
+      if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
 </body>
 </html>
