@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTOPOS - PC Dashboard v2.8</title>
+    <!-- PWA CONFIG -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 min-h-screen lg:h-screen p-3 font-sans flex flex-col gap-3 lg:overflow-hidden">
+
+    <!-- [SAMA SEPERTI KODE SEBELUMNYA, GUNAKAN STRUKTUR INDEX.HTML YANG SAYA KIRIMKAN DI CHAT SEBELUMNYA] -->
+    <!-- (Pastikan semua struktur header, main, aside, dan modal tetap sama seperti yang kita bahas di atas) -->
+
+    <script src="app.js"></script>
+    
+    <!-- SCRIPT DAFTAR SERVICE WORKER -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
+</body>
+</html>
