@@ -4,102 +4,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>OtoPos Android</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb"/>
+    <link rel="apple-touch-icon" href="gambarotopos192.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
     <style>
         body { -webkit-tap-highlight-color: transparent; }
-        .btn-press:active { transform: scale(0.97); }
+       .btn-press:active { transform: scale(0.97); }
+       .tab-content { display: none; }
+       .tab-content.active { display: block; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans flex flex-col">
 
-    <!-- 1. TOP BAR - VERSI ANDROID -->
+    <!-- 1. TOP BAR -->
     <header class="bg-blue-600 text-white p-3 shadow-md flex justify-between items-center sticky top-0 z-20">
         <div class="flex items-center gap-3">
             <span class="text-2xl">🛠️</span>
             <div>
                 <h1 class="text-lg font-black">OTOPOS</h1>
-                <p class="text-xs text-blue-200" id="nama-toko-header">Bengkel HELICOPTER</p>
+                <p class="text-xs text-blue-200" id="nama-toko-header">Bengkel</p>
             </div>
         </div>
-        <!-- HAPUS F4 F5. GANTI JADI ICON SAJA -->
-        <button onclick="toggleModal('settings-modal')" class="bg-blue-800 hover:bg-blue-900 btn-press p-2 rounded-lg">
-            ⚙️
-        </button>
+        <div class="flex gap-2">
+            <button onclick="toggleModal('input-modal')" class="bg-blue-800 hover:bg-blue-900 btn-press p-2 rounded-lg">📦</button>
+            <button onclick="toggleModal('settings-modal')" class="bg-blue-800 hover:bg-blue-900 btn-press p-2 rounded-lg">⚙️</button>
+        </div>
     </header>
 
-    <!-- 2. WRAPPER UTAMA - 1 KOLOM -->
+    <!-- 2. WRAPPER UTAMA -->
     <div class="flex-1 flex-col p-3 gap-3">
 
-        <!-- 2.1 TAB MODE - TANPA F2 F3 -->
+        <!-- TAB MODE -->
         <div class="grid grid-cols-2 p-1 bg-gray-200 rounded-xl">
             <button id="tab-servis" onclick="setMode('servis')" class="btn-press py-3 rounded-lg font-black text-sm bg-red-600 text-white shadow">MODE SERVIS</button>
             <button id="tab-part" onclick="setMode('part')" class="btn-press py-3 rounded-lg font-black text-sm text-gray-600">JUAL PART</button>
         </div>
 
-        <!-- 2.2 AREA SERVIS -->
+        <!-- AREA SERVIS -->
         <div id="area-servis" class="flex-1 flex-col bg-white rounded-xl shadow-md border p-3 min-h-0">
-            
-            <!-- HEADER ANTRIAN -->
             <div class="flex justify-between items-center mb-2 flex-shrink-0">
                 <h3 class="font-black text-red-600">DAFTAR ANTRIAN</h3>
                 <button onclick="toggleModal('antrian-modal')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-4 py-2 rounded-lg text-sm font-bold">+ Tambah</button>
             </div>
-
-            <!-- LIST ANTRIAN - DIKUNCI TINGGI -->
-            <div id="list-antrian" class="flex-1 h-40 overflow-y-auto mb-3 border border-red-100 rounded-lg p-2 bg-red-50/30">
-                <p class="text-center text-gray-400 text-sm pt-10">Belum ada antrian. Klik + Tambah</p>
-            </div>
-            
-            <!-- FORM DETAIL SERVIS -->
+            <div id="list-antrian" class="flex-1 h-40 overflow-y-auto mb-3 border border-red-100 rounded-lg p-2 bg-red-50/30"></div>
             <div id="form-servis-detail" class="hidden border-t pt-3"></div>
-
-            <!-- INPUT PRODUK -->
             <div id="input-manual-part" class="mt-auto pt-3 border-t">
                 <label class="block text-xs font-black text-gray-500 mb-1">CARI PRODUK</label>
+                <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="w-full border-gray-300 rounded-lg p-3 text-base outline-none mb-2">
                 <div class="flex gap-2">
-                    <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="flex-1 border-gray-300 rounded-lg p-3 text-base outline-none">
-                    <input type="number" id="input-qty" value="1" min="1" class="w-16 border border-gray-300 rounded-lg p-3 text-base text-center">
+                    <input type="number" id="input-qty" value="1" min="1" class="w-20 border border-gray-300 rounded-lg p-3 text-base text-center">
+                    <button id="btn-tambah" onclick="tambahKeBilling()" class="btn-press flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-base">+ TAMBAH</button>
                 </div>
-                <button id="btn-tambah" onclick="tambahKeBilling()" class="btn-press w-full mt-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl text-base">+ TAMBAH KE KASIR</button>
             </div>
         </div>
 
-        <!-- 2.3 AREA JUAL PART -->
+        <!-- AREA JUAL PART -->
         <div id="area-part" class="hidden flex-col bg-white rounded-xl shadow-md border p-3">
              <h3 class="font-black text-emerald-600 mb-3">JUAL LANGSUNG</h3>
              <label class="block text-xs font-black text-gray-500 mb-1">NAMA PEMBELI</label>
              <input type="text" id="input-pembeli" placeholder="Contoh: Pak Budi" class="w-full border-gray-300 bg-emerald-50/30 rounded-lg p-3 text-base outline-none">
         </div>
 
-        <!-- 2.4 BILLING - SELALU DI BAWAH -->
+        <!-- BILLING -->
         <div class="bg-slate-900 text-white rounded-xl shadow-md p-3">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-2">
                 <h2 class="font-black text-emerald-400">🛒 BILLING</h2>
                 <span id="billing-type" class="text-xs bg-red-900/50 text-red-300 px-3 py-1 rounded-full font-bold">SERVIS</span>
             </div>
             <div id="cart-items" class="max-h-32 overflow-y-auto space-y-1 mb-2"></div>
-            
             <div class="flex justify-between items-center mb-2">
                 <span class="font-bold text-slate-400">TOTAL:</span>
                 <span id="cart-total" class="text-2xl font-black text-emerald-400">Rp 0</span>
             </div>
-
-            <label class="block text-sm font-bold text-slate-400 mb-1">BAYAR</label>
             <div class="grid grid-cols-3 gap-2 mb-3">
                 <button onclick="setPayment('Tunai')" class="btn-pay btn-press bg-slate-800 border-2 border-emerald-500 text-emerald-400 font-bold py-3 rounded-lg">Tunai</button>
                 <button onclick="setPayment('QRIS')" class="btn-pay btn-press bg-slate-800 border-slate-700 text-slate-400 font-bold py-3 rounded-lg">QRIS</button>
                 <button onclick="setPayment('Debit')" class="btn-pay btn-press bg-slate-800 border border-slate-700 text-slate-400 font-bold py-3 rounded-lg">Debit</button>
             </div>
-
             <button onclick="prosesCheckout()" class="btn-press w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-4 rounded-xl text-base">SELESAI & CETAK</button>
         </div>
     </div>
 
-    <!-- MODAL TETAP SAMA, TAPI HAPUS TOMBOL LAPORAN PC -->
-    <!-- ... paste semua modal dari file lama kamu ke sini ... -->
-    <!-- PENTING: di modal setting, hapus tab "Laporan" dan "Manajemen Data" kalau buat kasir doang -->
+    <!-- DATALIST PRODUK -->
+    <datalist id="list-produk"></datalist>
 
-    <script src="app.js"></script>
+    <!-- 3. MODAL ANTRIAN -->
+    <div id="antrian-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-4 w-full max-w-sm">
+            <h3 class="font-black text-lg mb-3">Tambah Antrian</h3>
+            <input type="text" id="input-nopol-baru" placeholder="Nopol: B 1234 CD" class="w-full border p-3 rounded-lg mb-2 uppercase">
+            <input type="text" id="input-motor-baru" placeholder="Motor: Beat 2020" class="w-full border p-3 rounded-lg mb-3">
+            <div class="flex gap-2">
+                <button onclick="toggleModal('antrian-modal')" class="flex-1 bg-gray-200 py-3 rounded-lg font-bold">Batal</button>
+                <button onclick="tambahAntrian()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MODAL INPUT PART -->
+    <div id="input-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-4 w-full max-w-sm">
+            <h3 class="font-black text-lg mb-3">Input Part Cepat</h3>
+            <input type="text" id="input-part-name" placeholder="Nama Part" class="w-full border p-3 rounded-lg mb-2">
+            <input type="number" id="input-part-price" placeholder="Harga Jual" class="w-full border p-3 rounded-lg mb-2">
+            <input type="number" id="input-part-stock" placeholder="Stok Awal" value="0" class="w-full border p-3 rounded-lg mb-3">
+            <div class="flex gap-2">
+                <button onclick="handleQuickAdd(true)" class="flex-1 bg-gray-200 py-3 rounded-lg font-bold">Simpan & Lagi</button>
+                <button onclick="handleQuickAdd(false)" class="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-bold">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. MODAL SETTING -->
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-4 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h3 class="font-black text-lg mb-3">Pengaturan</h3>
+            <div class="flex border-b mb-3">
+                <button onclick="showTab('tab-toko')" class="tab-btn flex-1 py-2 font-bold border-b-2 border-blue-600">Data Toko</button>
+                <button onclick="showTab('tab-data')" class="tab-btn flex-1 py-2 font-bold text-gray-500">Manajemen Data</button>
+            </div>
+
+            <!-- TAB TOKO -->
+            <div id="tab-toko" class="tab-content active space-y-2">
+                <input type="text" id="setting-nama" placeholder="Nama Toko" class="w-full border p-2 rounded">
+                <input type="text" id="setting-alamat" placeholder="Alamat" class="w-full border p-2 rounded">
+                <input type="text" id="setting-telp" placeholder="No Telp" class="w-full border p-2 rounded">
+                <input type="text" id="setting-footer" placeholder="Footer Struk" class="w-full border p-2 rounded">
+                <button onclick="simpanSettingToko()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Simpan Data Toko</button>
+            </div>
+
+            <!-- TAB DATA -->
+            <div id="tab-data" class="tab-content space-y-3">
+                <h4 class="font-bold text-xs text-gray-600">BACKUP & RESTORE DATA</h4>
+                <button onclick="exportBackup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold text-sm">⬇️ EXPORT BACKUP.JSON</button>
+                <label for="import-file" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold text-sm flex justify-center items-center cursor-pointer">⬆️ IMPORT BACKUP.JSON</label>
+                <input type="file" id="import-file" accept=".json" class="hidden" onchange="importBackup(event)">
+                <p id="import-status" class="text-xs text-center"></p>
+            </div>
+            <button onclick="toggleModal('settings-modal')" class="w-full bg-gray-200 mt-4 py-3 rounded-lg font-bold">Tutup</button>
+        </div>
+    </div>
+
+<script src="app-android.js"></script>
+<script>
+// DAFTARKAN SERVICE WORKER PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+</script>
 </body>
 </html>
