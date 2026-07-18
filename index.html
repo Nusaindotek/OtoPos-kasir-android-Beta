@@ -1,94 +1,41 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTOPOS - PC Dashboard v2.8</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-gray-100 min-h-screen lg:h-screen p-3 font-sans flex flex-col gap-3 lg:overflow-hidden">
-
-    <header class="bg-blue-600 text-white p-3 rounded-xl shadow-md flex justify-between items-center flex-shrink-0">
-        <div class="flex items-center gap-2">
-            <span class="text-xl">🛠️</span>
-            <div class="block w-24">
-                <h1 class="text-sm font-black tracking-wider">OTOPOS</h1>
-                <p class="text-[10px] text-blue-200 truncate" id="nama-toko-header">Bengkel HELICOPTER</p>
-            </div>
+<div id="settings-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl w-full max-w-lg p-5 max-h-[80vh] overflow-y-auto">
+        <h3 class="font-black mb-3">⚙️ PENGATURAN</h3>
+        
+        <!-- Tab Navigation -->
+        <div class="flex border-b mb-3 text-xs overflow-x-auto">
+            <button onclick="openTab('tab-mekanik', event)" class="tab-btn px-3 py-2 border-b-2 border-blue-600 text-blue-600 font-bold">Mekanik</button>
+            <button onclick="openTab('tab-toko', event)" class="tab-btn px-3 py-2 border-b-2 border-transparent font-bold">Toko</button>
+            <button onclick="openTab('tab-data', event)" class="tab-btn px-3 py-2 border-b-2 border-transparent font-bold">Data</button>
+            <button onclick="openTab('tab-laporan', event); generateLaporan();" class="tab-btn px-3 py-2 border-b-2 border-transparent font-bold">Laporan</button>
         </div>
-        <div class="flex items-center gap-1 text-[10px] font-bold">
-            <button onclick="toggleModal('input-modal')" class="bg-orange-500 hover:bg-orange-600 btn-press shadow-md px-2 py-1.5 rounded-lg">F5 Input</button>
-            <button onclick="toggleModal('settings-modal')" class="bg-blue-800 hover:bg-blue-900 btn-press shadow-md px-2 py-1.5 rounded-lg">F4 Setting</button>
-        </div>
-    </header>
 
-    <div class="grid grid-cols-12 gap-3 flex-1 min-h-0">
-        <main class="col-span-12 lg:col-span-8 bg-white rounded-xl shadow-md border p-4 flex flex-col min-h-0">
-            <div class="grid grid-cols-2 p-1 bg-gray-100 rounded-xl border mb-3 flex-shrink-0">
-                <button id="tab-servis" onclick="setMode('servis')" class="btn-press py-2.5 rounded-lg font-black text-sm flex justify-center items-center gap-2 tab-active bg-red-600 text-white shadow-lg"><span class="bg-white/20 px-1.5 rounded text-xs">F2</span> MODE SERVIS</button>
-                <button id="tab-part" onclick="setMode('part')" class="btn-press py-2.5 rounded-lg font-black text-sm flex justify-center items-center gap-2 text-gray-500 hover:text-gray-800"><span class="bg-gray-200 px-1.5 rounded text-xs">F3</span> DIRECT PART</button>
-            </div>
-            <div id="area-servis" class="flex-1 flex flex-col min-h-0">
-                <div class="flex justify-between items-center mb-2 flex-shrink-0">
-                    <h3 class="font-black text-sm text-red-600">ANTRIAN SERVIS</h3>
-                    <button onclick="toggleModal('antrian-modal')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-2 py-1 rounded-lg text-[10px] font-bold">+ Tambah</button>
-                </div>
-                <div id="list-antrian" class="space-y-2 flex-1 overflow-y-auto mb-3"></div>
-                <div id="form-servis-detail" class="hidden border-t pt-3 flex-shrink-0"></div>
-            </div>
-            <div id="area-part" class="hidden flex-1 flex flex-col min-h-0">
-                 <h3 class="font-black text-sm text-emerald-600 flex-shrink-0 mb-3">FORM JUAL LANGSUNG</h3>
-                 <input type="text" id="input-pembeli" placeholder="Nama Pembeli (Opsional)" class="w-full border rounded-lg p-2.5 text-sm mb-3">
-            </div>
-            <div id="input-manual-part" class="mt-auto pt-3 border-t">
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="col-span-2"><input type="text" id="input-produk-search" list="list-produk" placeholder="Cari part..." class="w-full border rounded-lg p-2.5 text-sm outline-none"><datalist id="list-produk"></datalist></div>
-                    <div><input type="number" id="input-qty" value="1" min="1" class="w-full border rounded-lg p-2.5 text-sm text-center"></div>
-                </div>
-                <button id="btn-tambah" onclick="tambahKeBilling()" class="w-full mt-2 bg-emerald-600 text-white font-black py-2.5 rounded-lg text-sm">➕ TAMBAH KE KASIR</button>
-            </div>
-        </main>
-        <aside class="col-span-12 lg:col-span-4 bg-slate-900 text-white rounded-xl shadow-md p-4 flex flex-col justify-between border border-slate-800 min-h-0">
-            <div class="flex-1 flex flex-col min-h-0">
-                <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-2"><h2 class="font-black text-sm text-emerald-400">🛒 BILLING</h2><span id="billing-type" class="text-[10px] bg-red-900 px-2 py-0.5 rounded-full">SERVIS</span></div>
-                <div id="cart-items" class="space-y-1 flex-1 overflow-y-auto"></div>
-            </div>
-            <div class="border-t border-slate-700 pt-2 mt-2">
-                <div class="flex justify-between items-center mb-2"><span class="text-sm font-bold text-slate-400">TOTAL:</span><span id="cart-total" class="text-xl font-black text-emerald-400">Rp 0</span></div>
-                <div class="grid grid-cols-3 gap-1 mb-2"><button onclick="setPayment('Tunai')" class="btn-pay bg-slate-800 text-[10px] p-2 rounded">💵 Tunai</button><button onclick="setPayment('QRIS')" class="btn-pay bg-slate-800 text-[10px] p-2 rounded">📱 QRIS</button><button onclick="setPayment('Debit')" class="btn-pay bg-slate-800 text-[10px] p-2 rounded">💳 Debit</button></div>
-                <button onclick="prosesCheckout()" class="w-full bg-emerald-500 text-slate-950 font-black py-3 rounded-lg text-sm">🟩 SELESAI & CETAK</button>
-            </div>
-        </aside>
+        <!-- Tab Contents -->
+        <div id="tab-mekanik" class="tab-content text-sm"><div id="list-mekanik"></div></div>
+        
+        <div id="tab-toko" class="tab-content hidden space-y-2">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase">Nama Bengkel</label>
+            <input type="text" id="setting-nama" class="w-full border p-2 rounded text-sm">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase">Alamat</label>
+            <input type="text" id="setting-alamat" class="w-full border p-2 rounded text-sm">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase">No Telp</label>
+            <input type="text" id="setting-telp" class="w-full border p-2 rounded text-sm">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase">Footer Struk</label>
+            <input type="text" id="setting-footer" class="w-full border p-2 rounded text-sm">
+            <button onclick="simpanSettingToko()" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold mt-2">Simpan Data Toko</button>
+        </div>
+
+        <div id="tab-data" class="tab-content hidden space-y-2">
+            <textarea id="csv-input" class="w-full h-20 border p-2 text-xs" placeholder="Nama,Harga,Stok"></textarea>
+            <button onclick="handleImportCSV()" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold">Import CSV</button>
+            <button onclick="exportBackup()" class="w-full bg-emerald-600 text-white py-2 rounded text-sm font-bold">Backup JSON</button>
+        </div>
+
+        <div id="tab-laporan" class="tab-content hidden text-sm">
+            <div id="lap-total-jual" class="font-bold"></div>
+            <button onclick="resetLaporan()" class="w-full bg-red-600 text-white p-2 mt-2 rounded">Hapus Laporan</button>
+        </div>
+
+        <button onclick="toggleModal('settings-modal')" class="w-full bg-gray-200 p-2 mt-3 rounded text-sm">Tutup</button>
     </div>
-
-    <!-- MODAL-MODAL -->
-    <div id="settings-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl w-full max-w-lg p-5 max-h-[80vh] overflow-y-auto">
-            <h3 class="font-black mb-3">⚙️ PENGATURAN</h3>
-            <div class="flex border-b mb-3 text-xs">
-                <button onclick="openTab('tab-mekanik', event)" class="tab-btn px-3 py-2 border-b-2 border-blue-600">Mekanik</button>
-                <button onclick="openTab('tab-toko', event)" class="tab-btn px-3 py-2 border-b-2 border-transparent">Toko</button>
-                <button onclick="openTab('tab-laporan', event); generateLaporan();" class="tab-btn px-3 py-2 border-b-2 border-transparent">Laporan</button>
-            </div>
-            <div id="tab-mekanik" class="tab-content text-sm"><div id="list-mekanik"></div></div>
-            <div id="tab-toko" class="tab-content hidden space-y-2">
-                <label class="block text-[10px] font-bold text-gray-500 uppercase">Nama Bengkel</label>
-                <input type="text" id="setting-nama" class="w-full border p-2 rounded text-sm">
-                <label class="block text-[10px] font-bold text-gray-500 uppercase">Alamat</label>
-                <input type="text" id="setting-alamat" class="w-full border p-2 rounded text-sm">
-                <label class="block text-[10px] font-bold text-gray-500 uppercase">No Telp</label>
-                <input type="text" id="setting-telp" class="w-full border p-2 rounded text-sm">
-                <label class="block text-[10px] font-bold text-gray-500 uppercase">Footer Struk</label>
-                <input type="text" id="setting-footer" class="w-full border p-2 rounded text-sm">
-                <button onclick="simpanSettingToko()" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold mt-2">Simpan Data Toko</button>
-            </div>
-            <div id="tab-laporan" class="tab-content hidden text-sm"><div id="lap-total-jual"></div><button onclick="resetLaporan()" class="w-full bg-red-600 text-white p-2 mt-2 rounded">Hapus Laporan</button></div>
-            <button onclick="toggleModal('settings-modal')" class="w-full bg-gray-200 p-2 mt-3 rounded">Tutup</button>
-        </div>
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
+</div>
