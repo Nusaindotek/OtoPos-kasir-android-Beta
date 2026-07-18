@@ -1,0 +1,16 @@
+@media print { 
+    body * { visibility: hidden; } 
+    #print-receipt, #print-receipt *, #print-payroll, #print-payroll * { visibility: visible; } 
+    #print-receipt { position: absolute; left: 0; top: 0; width: 58mm; padding: 5px; }
+    #print-payroll { position: absolute; left: 0; top: 0; width: 58mm; padding: 5px; }
+}
+#cart-items::-webkit-scrollbar { width: 4px; } 
+#cart-items::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+#list-antrian::-webkit-scrollbar { width: 4px; } 
+#list-antrian::-webkit-scrollbar-thumb { background: #fca5a5; border-radius: 10px; }
+.tab-active { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+.btn-press { transition: all 75ms; }
+.btn-press:active { transform: translateY(2px); box-shadow: none!important; }
+.antrian-item:hover { background-color: #fee2e2; }
+.antrian-active { background-color: #fecaca!important; border-left: 4px solid #dc2626; }
+html, body { height: 100%; }
