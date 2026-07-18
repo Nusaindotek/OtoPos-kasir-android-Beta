@@ -18,7 +18,7 @@
        .tab-content.active { display: block; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans flex flex-col">
+<body class="bg-gray-100 min-h-screen font-sans flex-col">
 
     <!-- 1. TOP BAR -->
     <header class="bg-blue-600 text-white p-3 shadow-md flex justify-between items-center sticky top-0 z-20">
@@ -50,13 +50,13 @@
                 <h3 class="font-black text-red-600">DAFTAR ANTRIAN</h3>
                 <button onclick="toggleModal('antrian-modal')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-4 py-2 rounded-lg text-sm font-bold">+ Tambah</button>
             </div>
-            <div id="list-antrian" class="flex-1 h-40 overflow-y-auto mb-3 border border-red-100 rounded-lg p-2 bg-red-50/30"></div>
+            <div id="list-antrian" class="flex-1 h-40 overflow-y-auto mb-3 border-red-100 rounded-lg p-2 bg-red-50/30"></div>
             <div id="form-servis-detail" class="hidden border-t pt-3"></div>
             <div id="input-manual-part" class="mt-auto pt-3 border-t">
                 <label class="block text-xs font-black text-gray-500 mb-1">CARI PRODUK</label>
                 <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="w-full border-gray-300 rounded-lg p-3 text-base outline-none mb-2">
                 <div class="flex gap-2">
-                    <input type="number" id="input-qty" value="1" min="1" class="w-20 border border-gray-300 rounded-lg p-3 text-base text-center">
+                    <input type="number" id="input-qty" value="1" min="1" class="w-20 border-gray-300 rounded-lg p-3 text-base text-center">
                     <button id="btn-tambah" onclick="tambahKeBilling()" class="btn-press flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-base">+ TAMBAH</button>
                 </div>
             </div>
@@ -85,14 +85,19 @@
                 <button onclick="setPayment('QRIS')" class="btn-pay btn-press bg-slate-800 border-slate-700 text-slate-400 font-bold py-3 rounded-lg">QRIS</button>
                 <button onclick="setPayment('Debit')" class="btn-pay btn-press bg-slate-800 border border-slate-700 text-slate-400 font-bold py-3 rounded-lg">Debit</button>
             </div>
-            <button onclick="prosesCheckout()" class="btn-press w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-4 rounded-xl text-base">SELESAI & CETAK</button>
+            <!-- TOMBOL BARU: PILIH PRINTER + CETAK -->
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="pilihPrinter()" class="btn-press w-full bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-xl text-sm">🔗 PILIH PRINTER</button>
+                <button onclick="prosesCheckout()" class="btn-press w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-4 rounded-xl text-sm">SELESAI & CETAK</button>
+            </div>
+            <p id="status-printer" class="text-xs text-center mt-2 text-slate-400">Printer: Belum Terhubung</p>
         </div>
     </div>
 
     <!-- DATALIST PRODUK -->
     <datalist id="list-produk"></datalist>
 
-    <!-- 3. MODAL ANTRIAN -->
+    <!-- MODAL ANTRIAN -->
     <div id="antrian-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl p-4 w-full max-w-sm">
             <h3 class="font-black text-lg mb-3">Tambah Antrian</h3>
@@ -105,7 +110,7 @@
         </div>
     </div>
 
-    <!-- 4. MODAL INPUT PART -->
+    <!-- MODAL INPUT PART -->
     <div id="input-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl p-4 w-full max-w-sm">
             <h3 class="font-black text-lg mb-3">Input Part Cepat</h3>
@@ -119,16 +124,14 @@
         </div>
     </div>
 
-    <!-- 5. MODAL SETTING -->
+    <!-- MODAL SETTING -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-4 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-xl p-4 w-full max-w-md max-h- overflow-y-auto">
             <h3 class="font-black text-lg mb-3">Pengaturan</h3>
             <div class="flex border-b mb-3">
                 <button onclick="showTab('tab-toko')" class="tab-btn flex-1 py-2 font-bold border-b-2 border-blue-600">Data Toko</button>
                 <button onclick="showTab('tab-data')" class="tab-btn flex-1 py-2 font-bold text-gray-500">Manajemen Data</button>
             </div>
-
-            <!-- TAB TOKO -->
             <div id="tab-toko" class="tab-content active space-y-2">
                 <input type="text" id="setting-nama" placeholder="Nama Toko" class="w-full border p-2 rounded">
                 <input type="text" id="setting-alamat" placeholder="Alamat" class="w-full border p-2 rounded">
@@ -136,8 +139,6 @@
                 <input type="text" id="setting-footer" placeholder="Footer Struk" class="w-full border p-2 rounded">
                 <button onclick="simpanSettingToko()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Simpan Data Toko</button>
             </div>
-
-            <!-- TAB DATA -->
             <div id="tab-data" class="tab-content space-y-3">
                 <h4 class="font-bold text-xs text-gray-600">BACKUP & RESTORE DATA</h4>
                 <button onclick="exportBackup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold text-sm">⬇️ EXPORT BACKUP.JSON</button>
@@ -148,6 +149,9 @@
             <button onclick="toggleModal('settings-modal')" class="w-full bg-gray-200 mt-4 py-3 rounded-lg font-bold">Tutup</button>
         </div>
     </div>
+
+    <!-- AREA PRINT HIDDEN -->
+    <div id="print-area" class="hidden"></div>
 
 <script src="app-android.js"></script>
 <script>
