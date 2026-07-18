@@ -20,5 +20,7 @@ Laporan: Pantau performa bengkel, gaji mekanik, dan pergerakan stok barang melal
 
 Terima kasih telah menggunakan OTOPOS. Semoga bengkel Anda semakin maju!
 
+email: nusaindoteknologi@gmail.com
+
 Dibuat oleh Nusaindoteknologi
 @copyright2026
