@@ -147,3 +147,113 @@ function importBackup(event) {
     };
     reader.readAsText(file);
 }
+
+// ===== FITUR CETAK BLUETOOTH 58MM =====
+let bluetoothDevice = null;
+let bluetoothServer = null;
+let bluetoothCharacteristic = null;
+
+const ESC = '\x1B';
+const GS = '\x1D';
+
+// 1. FUNGSI PILIH PRINTER BLUETOOTH
+async function pilihPrinter() {
+    if (!navigator.bluetooth) {
+        return alert('Browser tidak support Web Bluetooth. Pakai Chrome di Android');
+    }
+    try {
+        document.getElementById('status-printer').innerText = 'Printer: Mencari...';
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }], // Service umum printer thermal
+            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+        });
+        
+        bluetoothServer = await bluetoothDevice.gatt.connect();
+        const service = await bluetoothServer.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        bluetoothCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb'); // Characteristic untuk write
+        
+        document.getElementById('status-printer').innerText = `Printer: ${bluetoothDevice.name} Terhubung`;
+        alert('Printer berhasil terhubung');
+
+    } catch (error) {
+        document.getElementById('status-printer').innerText = 'Printer: Gagal Terhubung';
+        console.log(error);
+    }
+}
+
+// 2. FUNGSI KIRIM DATA KE PRINTER
+async function cetakKeBluetooth(teks) {
+    if (!bluetoothCharacteristic) return alert('Pilih printer dulu');
+    
+    const encoder = new TextEncoder('GBK'); // GBK biar karakter indonesia bagus
+    const data = encoder.encode(teks);
+    
+    // Kirim per 20 byte karena limit bluetooth
+    for (let i = 0; i < data.length; i += 20) {
+        const chunk = data.slice(i, i + 20);
+        await bluetoothCharacteristic.writeValue(chunk);
+    }
+}
+
+// 3. GENERATOR STRUK ESC/POS
+function generateStruk() {
+    const total = cart.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    const tgl = new Date().toLocaleString('id-ID');
+    let struk = '';
+    
+    // INISIALISASI + CENTER
+    struk += ESC + '@'; // reset
+    struk += ESC + 'a' + '\x01'; // center
+    struk += GS + '!' + '\x11'; // ukuran besar
+    struk += settingToko.nama + '\n';
+    struk += ESC + '!' + '\x00'; // normal
+    struk += settingToko.alamat + '\n';
+    struk += settingToko.telp + '\n';
+    struk += '--------------------------------\n';
+    
+    // KIRI
+    struk += ESC + 'a' + '\x00'; // left
+    struk += `Tgl: ${tgl}\n`;
+    struk += `Bayar: ${paymentMethod}\n`;
+    struk += '--------------------------------\n';
+    
+    // ITEM
+    cart.forEach(i => {
+        struk += `${i.nama}\n`;
+        struk += `  ${i.qty} x ${i.harga.toLocaleString('id-ID')} = ${(i.harga * i.qty).toLocaleString('id-ID')}\n`;
+    });
+    struk += '--------------------------------\n';
+    
+    // TOTAL KANAN
+    struk += ESC + 'a' + '\x02'; // right
+    struk += `TOTAL: Rp ${total.toLocaleString('id-ID')}\n\n`;
+    
+    // FOOTER CENTER
+    struk += ESC + 'a' + '\x01'; // center
+    struk += settingToko.footer + '\n\n\n';
+    
+    // POTONG KERTAS
+    struk += GS + 'V' + '\x00'; 
+    
+    return struk;
+}
+
+// 4. UPDATE FUNGSI CHECKOUT
+async function prosesCheckout() {
+    if (cart.length === 0) return alert('Keranjang kosong');
+    
+    const struk = generateStruk();
+    
+    // 1. Cetak dulu
+    try {
+        await cetakKeBluetooth(struk);
+    } catch (e) {
+        alert('Gagal cetak. Cek koneksi printer');
+        console.log(e);
+    }
+    
+    // 2. Kosongin cart
+    cart = [];
+    updateBilling();
+    alert(`Checkout ${paymentMethod} berhasil`);
+}
