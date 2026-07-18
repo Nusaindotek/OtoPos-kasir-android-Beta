@@ -33,14 +33,36 @@
             </div>
 
             <!-- AREA SERVIS -->
-            <div id="area-servis" class="flex-1 flex flex-col min-h-0">
-                <div class="flex justify-between items-center mb-2 flex-shrink-0">
-                    <h3 class="font-black text-sm text-red-600">DAFTAR ANTRIAN SERVIS</h3>
-                    <button onclick="toggleModal('antrian-modal')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-3 py-1.5 rounded-lg text-xs font-bold">+ Tambah Antrian</button>
-                </div>
-                <div id="list-antrian" class="space-y-2 flex-1 overflow-y-auto mb-3 min-h-[300px] border border-red-200 rounded-lg p-2 bg-red-50/30"></div>
-                <div id="form-servis-detail" class="hidden border-t pt-3 flex-shrink-0"></div>
+<div id="area-servis" class="flex-1 flex flex-col min-h-0">
+    
+    <!-- 1. HEADER + TOMBOL -->
+    <div class="flex justify-between items-center mb-2 flex-shrink-0">
+        <h3 class="font-black text-sm text-red-600">DAFTAR ANTRIAN SERVIS</h3>
+        <button onclick="toggleModal('antrian-modal')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-3 py-1.5 rounded-lg text-xs font-bold">+ Tambah Antrian</button>
+    </div>
+
+    <!-- 2. LIST ANTRIAN - INI YG BISA SCROLL -->
+    <div id="list-antrian" class="space-y-2 h-32 lg:h-48 overflow-y-auto mb-3 border border-red-200 rounded-lg p-2 bg-red-50/30 flex-shrink-0"></div>
+    
+    <!-- 3. DETAIL SERVIS -->
+    <div id="form-servis-detail" class="hidden border-t pt-3 flex-shrink-0"></div>
+
+    <!-- 4. INPUT MANUAL - INI DITARUH PALING BAWAH -->
+    <div id="input-manual-part" class="mt-auto pt-3 border-t flex-shrink-0">
+        <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2">
+                <label class="block text-xs font-black text-gray-500 mb-1">CARI PRODUK (MENAMPILKAN SISA STOK)</label>
+                <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="w-full border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                <datalist id="list-produk"></datalist>
             </div>
+            <div>
+                <label class="block text-xs font-black text-gray-500 mb-1">QTY</label>
+                <input type="number" id="input-qty" value="1" min="1" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm text-center outline-none">
+            </div>
+        </div>
+        <button id="btn-tambah" onclick="tambahKeBilling()" class="btn-press w-full mt-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-lg text-white font-black py-3 rounded-xl text-sm flex justify-center items-center gap-2">➕ TAMBAH KE KASIR <span class="bg-white/20 px-1.5 rounded text-xs">Ctrl + Enter</span></button>
+    </div>
+</div>
 
             <!-- AREA PART -->
             <div id="area-part" class="hidden flex-1 flex flex-col min-h-0">
