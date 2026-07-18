@@ -1,41 +1,38 @@
-// ====== OTOPOS ANDROID PWA V2.1 - FIX TOMBOL ======
 let produk = JSON.parse(localStorage.getItem('produk')) || [];
 let antrian = JSON.parse(localStorage.getItem('antrian')) || [];
 let cart = [];
 let mode = 'servis';
 let paymentMethod = 'Tunai';
 let settingToko = JSON.parse(localStorage.getItem('settingToko')) || {
-    nama: 'Bengkel HELICOPTER', alamat: 'Majalaya, Jabar', telp: '0812-3456-7890', footer: 'Terima Kasih 🙏'
+    nama: 'Bengkel HELICOPTER', alamat: 'Majalaya', telp: '0812', footer: 'Terima Kasih 🙏'
 };
-let bluetoothDevice = null; let bluetoothServer = null; let bluetoothCharacteristic = null;
-const ESC = '\x1B'; const GS = '\x1D';
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProduk(); loadAntrian(); loadSetting(); setMode('servis'); updateBilling();
 });
 
-// 1. MODE SERVIS / PART - FIX
-function setMode(m, el) {
+// MODE
+function setMode(m) {
     mode = m;
-    document.querySelectorAll('#tab-servis, #tab-part').forEach(b => {
-        b.classList.remove('bg-red-600', 'text-white'); b.classList.add('text-gray-600');
-    });
-    el.classList.add('bg-red-600', 'text-white');
+    document.getElementById('tab-servis').classList.toggle('bg-red-600', m === 'servis');
+    document.getElementById('tab-servis').classList.toggle('text-white', m === 'servis');
+    document.getElementById('tab-part').classList.toggle('bg-red-600', m === 'part');
+    document.getElementById('tab-part').classList.toggle('text-white', m === 'part');
     document.getElementById('area-servis').classList.toggle('hidden', m!== 'servis');
     document.getElementById('area-part').classList.toggle('hidden', m!== 'part');
     document.getElementById('billing-type').innerText = m === 'servis'? 'SERVIS' : 'PART';
 }
 
-// 2. MODAL & TAB - FIX
+// MODAL & TAB
 function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
-function showTab(id, el) {
+function showTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('border-blue-600', 'text-gray-900'); b.classList.add('text-gray-500'); });
-    el.classList.add('border-blue-600', 'text-gray-900'); el.classList.remove('text-gray-500');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('border-blue-600'));
+    event.target.classList.add('border-blue-600');
 }
 
-// 3. ANTRIAN
+// ANTRIAN
 function tambahAntrian() {
     const nopol = document.getElementById('input-nopol-baru').value.toUpperCase();
     const motor = document.getElementById('input-motor-baru').value;
@@ -48,15 +45,15 @@ function tambahAntrian() {
 function loadAntrian() {
     const el = document.getElementById('list-antrian');
     if (antrian.length === 0) { el.innerHTML = '<p class="text-center text-gray-400 text-sm pt-10">Belum ada antrian</p>'; return; }
-    el.innerHTML = antrian.map(a => `<div onclick="pilihAntrian(${a.id})" class="p-2 bg-white rounded-lg shadow-sm border mb-2 btn-press"><p class="font-black">${a.nopol}</p><p class="text-xs text-gray-500">${a.motor} - ${a.waktu}</p></div>`).join('');
+    el.innerHTML = antrian.map(a => `<div onclick="pilihAntrian(${a.id})" class="p-2 bg-white rounded-lg shadow-sm border mb-2"><p class="font-black">${a.nopol}</p><p class="text-xs text-gray-500">${a.motor}</p></div>`).join('');
 }
 function pilihAntrian(id) {
     const a = antrian.find(x => x.id === id);
-    document.getElementById('form-servis-detail').innerHTML = `<p class="font-bold text-sm">Sedang Kerjakan: ${a.nopol} - ${a.motor}</p>`;
+    document.getElementById('form-servis-detail').innerHTML = `<p class="font-bold">Kerjakan: ${a.nopol}</p>`;
     document.getElementById('form-servis-detail').classList.remove('hidden');
 }
 
-// 4. PRODUK & CART
+// PRODUK & CART
 function loadProduk() {
     document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama} - Stok:${p.stok}">`).join('');
 }
@@ -80,28 +77,19 @@ function updateBilling() {
     document.getElementById('cart-total').innerText = `Rp ${total.toLocaleString('id-ID')}`;
 }
 
-// 5. PAYMENT - FIX
-function setPayment(m, el) {
+// PAYMENT & CHECKOUT
+function setPayment(m) {
     paymentMethod = m;
-    document.querySelectorAll('.btn-pay').forEach(b => { b.classList.remove('border-emerald-500', 'text-emerald-400'); b.classList.add('border-slate-700', 'text-slate-400'); });
-    el.classList.add('border-emerald-500', 'text-emerald-400');
-    el.classList.remove('border-slate-700', 'text-slate-400');
+    document.querySelectorAll('.btn-pay').forEach(b => b.classList.remove('border-emerald-500', 'text-emerald-400'));
+    event.target.classList.add('border-emerald-500', 'text-emerald-400');
+}
+function prosesCheckout() {
+    if (cart.length === 0) return alert('Keranjang kosong');
+    alert(`Checkout ${paymentMethod} berhasil. Total: ${document.getElementById('cart-total').innerText}`);
+    cart = []; updateBilling();
 }
 
-// 6. INPUT PART CEPAT
-function handleQuickAdd(lagi) {
-    const nama = document.getElementById('input-part-name').value;
-    const harga = parseInt(document.getElementById('input-part-price').value);
-    const stok = parseInt(document.getElementById('input-part-stock').value);
-    if (!nama ||!harga) return alert('Nama dan Harga wajib');
-    produk.push({ nama, harga, stok });
-    localStorage.setItem('produk', JSON.stringify(produk));
-    loadProduk();
-    if (!lagi) toggleModal('input-modal');
-    document.getElementById('input-part-name').value = ''; document.getElementById('input-part-price').value = ''; document.getElementById('input-part-stock').value = '0';
-}
-
-// 7. SETTING TOKO
+// SETTING TOKO
 function simpanSettingToko() {
     settingToko.nama = document.getElementById('setting-nama').value;
     settingToko.alamat = document.getElementById('setting-alamat').value;
@@ -118,14 +106,27 @@ function loadSetting() {
     document.getElementById('setting-footer').value = settingToko.footer;
 }
 
-// 8. BACKUP RESTORE
+// INPUT PART
+function handleQuickAdd(lagi) {
+    const nama = document.getElementById('input-part-name').value;
+    const harga = parseInt(document.getElementById('input-part-price').value);
+    const stok = parseInt(document.getElementById('input-part-stock').value);
+    if (!nama ||!harga) return alert('Nama dan Harga wajib');
+    produk.push({ nama, harga, stok });
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk();
+    if (!lagi) toggleModal('input-modal');
+    document.getElementById('input-part-name').value = ''; document.getElementById('input-part-price').value = '';
+}
+
+// BACKUP RESTORE PWA
 function exportBackup() {
     const data = { produk, antrian, settingToko, tanggalBackup: new Date().toLocaleString('id-ID') };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = `OtoPos-Backup-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-    alert('Backup berhasil');
+    alert('Backup berhasil di download');
 }
 function importBackup(event) {
     const file = event.target.files[0]; if (!file) return;
@@ -134,46 +135,15 @@ function importBackup(event) {
         try {
             const data = JSON.parse(e.target.result);
             if (!data.produk ||!data.settingToko) throw new Error('File backup tidak valid');
-            if (!confirm(`Restore data dari ${data.tanggalBackup}?`)) return;
+            if (!confirm(`Restore data dari ${data.tanggalBackup}? Data saat ini tertimpa.`)) return;
             localStorage.setItem('produk', JSON.stringify(data.produk));
             localStorage.setItem('antrian', JSON.stringify(data.antrian));
             localStorage.setItem('settingToko', JSON.stringify(data.settingToko));
             loadProduk(); loadAntrian(); loadSetting(); updateBilling();
-            document.getElementById('import-status').innerText = `Restore berhasil!`; document.getElementById('import-status').className = 'text-xs text-center text-emerald-600';
+            document.getElementById('import-status').innerText = `Restore berhasil!`; document.getElementById('import-status').classList.add('text-emerald-600');
         } catch (error) {
-            document.getElementById('import-status').innerText = 'Gagal: File rusak'; document.getElementById('import-status').className = 'text-xs text-center text-red-600';
+            document.getElementById('import-status').innerText = 'Gagal: File rusak'; document.getElementById('import-status').classList.add('text-red-600');
         }
     };
     reader.readAsText(file);
-}
-
-// 9. CETAK BLUETOOTH
-async function pilihPrinter() {
-    if (!navigator.bluetooth) return alert('Pakai Chrome Android');
-    try {
-        document.getElementById('status-printer').innerText = 'Printer: Mencari...';
-        bluetoothDevice = await navigator.bluetooth.requestDevice({ filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }] });
-        bluetoothServer = await bluetoothDevice.gatt.connect();
-        const service = await bluetoothServer.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        bluetoothCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-        document.getElementById('status-printer').innerText = `Printer: ${bluetoothDevice.name} Terhubung`;
-    } catch (error) { document.getElementById('status-printer').innerText = 'Printer: Gagal'; }
-}
-async function cetakKeBluetooth(teks) {
-    if (!bluetoothCharacteristic) return alert('Pilih printer dulu');
-    const encoder = new TextEncoder('GBK'); const data = encoder.encode(teks);
-    for (let i = 0; i < data.length; i += 20) { await bluetoothCharacteristic.writeValue(data.slice(i, i + 20)); await new Promise(r => setTimeout(r, 10)); }
-}
-function generateStruk() {
-    const total = cart.reduce((sum, i) => sum + i.harga * i.qty, 0);
-    const tgl = new Date().toLocaleString('id-ID');
-    let struk = ESC + '@' + ESC + 'a' + '\x01' + GS + '!' + '\x11' + settingToko.nama + '\n' + ESC + '!' + '\x00' + settingToko.alamat + '\n' + settingToko.telp + '\n--------------------------------\n' + ESC + 'a' + '\x00' + `Tgl: ${tgl}\nBayar: ${paymentMethod}\n--------------------------------\n`;
-    cart.forEach(i => { struk += `${i.nama}\n ${i.qty} x ${i.harga.toLocaleString('id-ID')} = ${(i.harga * i.qty).toLocaleString('id-ID')}\n`; });
-    struk += '--------------------------------\n' + ESC + 'a' + '\x02' + `TOTAL: Rp ${total.toLocaleString('id-ID')}\n\n` + ESC + 'a' + '\x01' + settingToko.footer + '\n\n' + GS + 'V' + '\x00';
-    return struk;
-}
-async function prosesCheckout() {
-    if (cart.length === 0) return alert('Keranjang kosong');
-    try { await cetakKeBluetooth(generateStruk()); } catch (e) { alert('Gagal cetak'); }
-    cart = []; updateBilling(); alert(`Checkout ${paymentMethod} berhasil`);
 }
