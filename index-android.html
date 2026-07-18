@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>OtoPos Android</title>
+
+    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb"/>
+    <link rel="apple-touch-icon" href="gambarotopos192.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { -webkit-tap-highlight-color: transparent; }
-      .btn-press:active { transform: scale(0.97); }
-      .tab-content { display: none; }
-      .tab-content.active { display: block; }
+       .btn-press:active { transform: scale(0.97); }
+       .tab-content { display: none; }
+       .tab-content.active { display: block; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans flex-col">
+
+    <!-- 1. TOP BAR -->
     <header class="bg-blue-600 text-white p-3 shadow-md flex justify-between items-center sticky top-0 z-20">
         <div class="flex items-center gap-3">
             <span class="text-2xl">🛠️</span>
@@ -29,36 +35,41 @@
         </div>
     </header>
 
+    <!-- 2. WRAPPER UTAMA -->
     <div class="flex-1 flex-col p-3 gap-3">
+
+        <!-- TAB MODE -->
         <div class="grid grid-cols-2 p-1 bg-gray-200 rounded-xl">
-            <button id="tab-servis" onclick="setMode('servis', this)" class="btn-press py-3 rounded-lg font-black text-sm bg-red-600 text-white shadow">MODE SERVIS</button>
-            <button id="tab-part" onclick="setMode('part', this)" class="btn-press py-3 rounded-lg font-black text-sm text-gray-600">JUAL PART</button>
+            <button id="tab-servis" onclick="setMode('servis')" class="btn-press py-3 rounded-lg font-black text-sm bg-red-600 text-white shadow">MODE SERVIS</button>
+            <button id="tab-part" onclick="setMode('part')" class="btn-press py-3 rounded-lg font-black text-sm text-gray-600">JUAL PART</button>
         </div>
 
+        <!-- AREA SERVIS -->
         <div id="area-servis" class="flex-1 flex-col bg-white rounded-xl shadow-md border p-3 min-h-0">
-
             <div class="flex justify-between items-center mb-2 flex-shrink-0">
                 <h3 class="font-black text-red-600">DAFTAR ANTRIAN</h3>
                 <button onclick="toggleModal('antrian-modal')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-4 py-2 rounded-lg text-sm font-bold">+ Tambah</button>
             </div>
-            <div id="list-antrian" class="flex-1 h-40 overflow-y-auto mb-3 border rounded-lg p-2 bg-red-50/30"></div>
+            <div id="list-antrian" class="flex-1 h-40 overflow-y-auto mb-3 border-red-100 rounded-lg p-2 bg-red-50/30"></div>
             <div id="form-servis-detail" class="hidden border-t pt-3"></div>
             <div id="input-manual-part" class="mt-auto pt-3 border-t">
                 <label class="block text-xs font-black text-gray-500 mb-1">CARI PRODUK</label>
-                <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="w-full border rounded-lg p-3 text-base outline-none mb-2">
+                <input type="text" id="input-produk-search" list="list-produk" placeholder="Ketik nama part..." class="w-full border-gray-300 rounded-lg p-3 text-base outline-none mb-2">
                 <div class="flex gap-2">
-                    <input type="number" id="input-qty" value="1" min="1" class="w-20 border rounded-lg p-3 text-base text-center">
+                    <input type="number" id="input-qty" value="1" min="1" class="w-20 border-gray-300 rounded-lg p-3 text-base text-center">
                     <button id="btn-tambah" onclick="tambahKeBilling()" class="btn-press flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-base">+ TAMBAH</button>
                 </div>
             </div>
         </div>
 
-        <div id="area-part" style="display:none" class="flex-1 flex-col bg-white rounded-xl shadow-md border p-3">
+        <!-- AREA JUAL PART -->
+        <div id="area-part" class="hidden flex-col bg-white rounded-xl shadow-md border p-3">
              <h3 class="font-black text-emerald-600 mb-3">JUAL LANGSUNG</h3>
              <label class="block text-xs font-black text-gray-500 mb-1">NAMA PEMBELI</label>
-             <input type="text" id="input-pembeli" placeholder="Contoh: Pak Budi" class="w-full border bg-emerald-50/30 rounded-lg p-3 text-base outline-none">
+             <input type="text" id="input-pembeli" placeholder="Contoh: Pak Budi" class="w-full border-gray-300 bg-emerald-50/30 rounded-lg p-3 text-base outline-none">
         </div>
 
+        <!-- BILLING -->
         <div class="bg-slate-900 text-white rounded-xl shadow-md p-3">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-2">
                 <h2 class="font-black text-emerald-400">🛒 BILLING</h2>
@@ -70,10 +81,11 @@
                 <span id="cart-total" class="text-2xl font-black text-emerald-400">Rp 0</span>
             </div>
             <div class="grid grid-cols-3 gap-2 mb-3">
-                <button onclick="setPayment('Tunai', this)" class="btn-pay btn-press bg-slate-800 border-2 border-emerald-500 text-emerald-400 font-bold py-3 rounded-lg">Tunai</button>
-                <button onclick="setPayment('QRIS', this)" class="btn-pay btn-press bg-slate-800 border-slate-700 text-slate-400 font-bold py-3 rounded-lg">QRIS</button>
-                <button onclick="setPayment('Debit', this)" class="btn-pay btn-press bg-slate-800 border border-slate-700 text-slate-400 font-bold py-3 rounded-lg">Debit</button>
+                <button onclick="setPayment('Tunai')" class="btn-pay btn-press bg-slate-800 border-2 border-emerald-500 text-emerald-400 font-bold py-3 rounded-lg">Tunai</button>
+                <button onclick="setPayment('QRIS')" class="btn-pay btn-press bg-slate-800 border-slate-700 text-slate-400 font-bold py-3 rounded-lg">QRIS</button>
+                <button onclick="setPayment('Debit')" class="btn-pay btn-press bg-slate-800 border border-slate-700 text-slate-400 font-bold py-3 rounded-lg">Debit</button>
             </div>
+            <!-- TOMBOL BARU: PILIH PRINTER + CETAK -->
             <div class="grid grid-cols-2 gap-2">
                 <button onclick="pilihPrinter()" class="btn-press w-full bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-xl text-sm">🔗 PILIH PRINTER</button>
                 <button onclick="prosesCheckout()" class="btn-press w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-4 rounded-xl text-sm">SELESAI & CETAK</button>
@@ -82,8 +94,10 @@
         </div>
     </div>
 
+    <!-- DATALIST PRODUK -->
     <datalist id="list-produk"></datalist>
 
+    <!-- MODAL ANTRIAN -->
     <div id="antrian-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl p-4 w-full max-w-sm">
             <h3 class="font-black text-lg mb-3">Tambah Antrian</h3>
@@ -96,6 +110,7 @@
         </div>
     </div>
 
+    <!-- MODAL INPUT PART -->
     <div id="input-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl p-4 w-full max-w-sm">
             <h3 class="font-black text-lg mb-3">Input Part Cepat</h3>
@@ -109,12 +124,13 @@
         </div>
     </div>
 
+    <!-- MODAL SETTING -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl p-4 w-full max-w-md max-h- overflow-y-auto">
             <h3 class="font-black text-lg mb-3">Pengaturan</h3>
             <div class="flex border-b mb-3">
-                <button onclick="showTab('tab-toko', this)" class="tab-btn flex-1 py-2 font-bold border-b-2 border-blue-600 text-gray-900">Data Toko</button>
-                <button onclick="showTab('tab-data', this)" class="tab-btn flex-1 py-2 font-bold text-gray-500">Manajemen Data</button>
+                <button onclick="showTab('tab-toko')" class="tab-btn flex-1 py-2 font-bold border-b-2 border-blue-600">Data Toko</button>
+                <button onclick="showTab('tab-data')" class="tab-btn flex-1 py-2 font-bold text-gray-500">Manajemen Data</button>
             </div>
             <div id="tab-toko" class="tab-content active space-y-2">
                 <input type="text" id="setting-nama" placeholder="Nama Toko" class="w-full border p-2 rounded">
@@ -134,8 +150,12 @@
         </div>
     </div>
 
+    <!-- AREA PRINT HIDDEN -->
+    <div id="print-area" class="hidden"></div>
+
 <script src="app-android.js"></script>
 <script>
+// DAFTARKAN SERVICE WORKER PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js');
