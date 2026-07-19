@@ -5,82 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>OTOPOS</title>
     <style>
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #f1f5f9; color: #333; padding-bottom: 200px; }
-
-        header {
-            background: #2563eb; color: white; padding: 16px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        header h1 { font-size: 20px; font-weight: 900; letter-spacing: 1px; }
-        header button {
-            background: #1e40af; border: none; color: white; font-size: 18px;
-            padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
-        header button:active { transform: scale(0.95); }
-
+        header { background: #2563eb; color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        header h1 { font-size: 20px; font-weight: 900; }
+        header button { background: #1e40af; border: none; color: white; font-size: 18px; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         main { padding: 16px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin: 0 auto; }
-
       .card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
       .card h2 { font-weight: 900; margin-bottom: 12px; font-size: 16px; }
-
-        input, select {
-            width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;
-            margin-bottom: 10px; font-size: 16px; outline: none;
-        }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         input:focus { border: 2px solid #2563eb; }
       .row { display: flex; gap: 10px; align-items: center; }
       .row input { width: 80px; text-align: center; }
-
       .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-      .btn {
-            padding: 12px; border: none; border-radius: 8px; font-weight: bold;
-            font-size: 16px; cursor: pointer; transition: 0.1s;
-        }
+      .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
       .btn:active { transform: scale(0.95); }
       .btn-green { background: #16a34a; color: white; }
       .btn-blue { background: #2563eb; color: white; }
       .btn-orange { background: #ea580c; color: white; }
       .btn-gray { background: #e5e7eb; color: black; }
       .btn-besar { width: 100%; padding: 16px; font-size: 18px; }
-
-      .total {
-            display: flex; justify-content: space-between; font-size: 24px;
-            font-weight: 900; color: #4ade80; margin: 10px 0;
-            padding-top: 10px; border-top: 1px dashed #475569;
-        }
+      .total { display: flex; justify-content: space-between; font-size: 24px; font-weight: 900; color: #4ade80; margin: 10px 0; padding-top: 10px; border-top: 1px dashed #475569; }
         #list-keranjang { min-height: 60px; margin-bottom: 10px; max-height: 120px; overflow-y: auto; }
-      .item-keranjang {
-            display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px;
-        }
-      .item-keranjang button {
-            background: red; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 12px;
-        }
-
-      .billing-fixed {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: #1e293b; color: white; padding: 16px;
-            border-radius: 16px 16px 0 0; box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
-            max-width: 600px; margin: 0 auto;
-        }
-
-      .modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-            display: flex; align-items: flex-end; justify-content: center; z-index: 20;
-        }
+      .item-keranjang { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; padding: 6px 0; border-bottom: 1px dashed #e5e7eb; }
+      .item-keranjang button { background: red; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 12px; }
+      .billing-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: white; padding: 16px; border-radius: 16px 16px 0 0; max-width: 600px; margin: 0 auto; }
+      .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
       .modal.hidden { display: none; }
-      .modal-content {
-            background: white; padding: 20px; border-radius: 16px 16px 0 0;
-            width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px;
-            max-height: 80vh; overflow-y: auto;
-        }
-      .modal-content h3 { font-weight: 900; font-size: 18px; }
+      .modal-content { background: white; padding: 20px; border-radius: 16px 16px 0 0; width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; max-height: 85vh; overflow-y: auto; }
+      .modal-content h3 { font-weight: 900; font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
+      .tab-btn { padding: 10px; font-weight: bold; border-bottom: 2px solid #e5e7eb; }
+      .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; }
+      .tab-content { display: none; }
+      .tab-content.active { display: block; }
         #area-servis.hidden { display: none; }
     </style>
 </head>
@@ -88,11 +45,11 @@
 
     <header>
         <h1>🔧 OTOPOS</h1>
-        <button onclick="bukaModal('modal-setting')">⚙️</button>
+        <button onclick="bukaModal('modal-setting')">⚙️ Setting</button>
     </header>
 
     <main>
-        <!-- TOMBOL MODE - UDAH DIHAPUS LOGO F2 F3 -->
+        <!-- TOMBOL MODE UNTUK KASIR -->
         <div class="card" style="padding: 8px;">
             <div class="menu-grid">
                 <button id="btn-servis" class="btn btn-green" onclick="setMode('servis')">MODE SERVIS</button>
@@ -100,45 +57,26 @@
             </div>
         </div>
 
-        <!-- AREA ANTRIAN -->
+        <!-- AREA ANTRIAN - CUMA MUNCUL DI MODE SERVIS -->
         <div id="area-servis" class="card">
             <h2>ANTRIAN SERVIS</h2>
             <button class="btn btn-orange btn-besar" onclick="bukaModal('modal-antrian')">+ Tambah Antrian</button>
             <div id="list-antrian" style="margin-top:10px">Belum ada antrian</div>
         </div>
 
-        <!-- MENU CEPAT -->
-        <div class="card">
-            <h2>MENU CEPAT</h2>
-            <div class="menu-grid">
-                <button class="btn btn-orange" onclick="bukaModal('modal-produk')">+ Tambah Part</button>
-                <button class="btn btn-blue" onclick="bukaModal('modal-mekanik')">+ Tambah Mekanik</button>
-                <button class="btn btn-green" onclick="exportData()">⬇️ Backup</button>
-                <label class="btn btn-blue" style="text-align:center">
-                    ⬆️ Import
-                    <input type="file" id="input-file" accept=".json" style="display:none" onchange="handleImport(event)">
-                </label>
-            </div>
-        </div>
-
-        <!-- INPUT PRODUK -->
+        <!-- INPUT PRODUK UNTUK KASIR -->
         <div class="card">
             <h2 id="judul-input">TAMBAH KE BILLING SERVIS</h2>
             <input type="text" id="input-produk" list="list-produk" placeholder="Ketik nama part...">
             <div class="row">
                 <input type="number" id="input-qty" value="1" min="1">
-                <button class="btn btn-orange" onclick="tambahKeKeranjang()" style="flex:1">+ Masukkan</button>
+                <button class="btn btn-orange" onclick="tambahKeKeranjang()" style="flex:1">+ Masukkan ke Billing</button>
             </div>
         </div>
 
-        <!-- DATA MEKANIK -->
-        <div class="card">
-            <h2>DATA MEKANIK</h2>
-            <div id="list-mekanik">Belum ada data</div>
-        </div>
     </main>
 
-    <!-- BILLING FIXED -->
+    <!-- BILLING FIXED UNTUK KASIR -->
     <div class="billing-fixed">
         <h2 style="font-size:16px; margin-bottom:8px;">🛒 BILLING <span id="mode-label" style="font-size:12px; background:#ef4444; padding:2px 6px; border-radius:4px">SERVIS</span></h2>
         <div id="list-keranjang">Keranjang kosong</div>
@@ -151,33 +89,7 @@
 
     <datalist id="list-produk"></datalist>
 
-    <!-- MODAL PRODUK -->
-    <div id="modal-produk" class="modal hidden">
-        <div class="modal-content">
-            <h3>Input Part Baru</h3>
-            <input id="nama-produk" placeholder="Nama Part">
-            <input id="harga-produk" type="number" placeholder="Harga Jual">
-            <input id="stok-produk" type="number" placeholder="Stok Awal" value="0">
-            <div class="row">
-                <button class="btn btn-gray" onclick="tutupModal('modal-produk')" style="flex:1">Batal</button>
-                <button class="btn btn-orange" onclick="simpanProduk()" style="flex:1">Simpan</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL MEKANIK -->
-    <div id="modal-mekanik" class="modal hidden">
-        <div class="modal-content">
-            <h3>Tambah Mekanik</h3>
-            <input id="nama-mekanik" placeholder="Nama Mekanik">
-            <div class="row">
-                <button class="btn btn-gray" onclick="tutupModal('modal-mekanik')" style="flex:1">Batal</button>
-                <button class="btn btn-blue" onclick="simpanMekanik()" style="flex:1">Simpan</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL ANTRIAN -->
+    <!-- MODAL ANTRIAN - UNTUK KASIR -->
     <div id="modal-antrian" class="modal hidden">
         <div class="modal-content">
             <h3>Tambah Antrian</h3>
@@ -190,13 +102,55 @@
         </div>
     </div>
 
-    <!-- MODAL SETTING -->
+    <!-- MODAL SETTING - SEMUA MASTER DATA DI SINI -->
     <div id="modal-setting" class="modal hidden">
         <div class="modal-content">
-            <h3>Pengaturan Toko</h3>
-            <input id="setting-nama" placeholder="Nama Toko">
-            <input id="setting-alamat" placeholder="Alamat">
-            <button class="btn btn-blue" onclick="simpanSetting()">Simpan Setting</button>
+            <h3>⚙️ PENGATURAN</h3>
+            <!-- TAB -->
+            <div class="menu-grid">
+                <button onclick="showTab('tab-toko', this)" class="tab-btn tab-active">Data Toko</button>
+                <button onclick="showTab('tab-part', this)" class="tab-btn">Data Part</button>
+                <button onclick="showTab('tab-mekanik', this)" class="tab-btn">Data Mekanik</button>
+                <button onclick="showTab('tab-data', this)" class="tab-btn">Backup</button>
+            </div>
+
+            <!-- TAB TOKO -->
+            <div id="tab-toko" class="tab-content active">
+                <input id="setting-nama" placeholder="Nama Toko">
+                <input id="setting-alamat" placeholder="Alamat">
+                <button class="btn btn-blue" onclick="simpanSetting()">Simpan Data Toko</button>
+            </div>
+
+            <!-- TAB PART -->
+            <div id="tab-part" class="tab-content">
+                <h4>Tambah Part Baru</h4>
+                <input id="nama-produk" placeholder="Nama Part">
+                <input id="harga-produk" type="number" placeholder="Harga Jual">
+                <input id="stok-produk" type="number" placeholder="Stok Awal" value="0">
+                <button class="btn btn-orange" onclick="simpanProduk()">Simpan Part</button>
+                <hr>
+                <h4>Daftar Part</h4>
+                <div id="list-part"></div>
+            </div>
+
+            <!-- TAB MEKANIK -->
+            <div id="tab-mekanik" class="tab-content">
+                <h4>Tambah Mekanik Baru</h4>
+                <input id="nama-mekanik" placeholder="Nama Mekanik">
+                <button class="btn btn-blue" onclick="simpanMekanik()">Simpan Mekanik</button>
+                <hr>
+                <h4>Daftar Mekanik</h4>
+                <div id="list-mekanik"></div>
+            </div>
+
+            <!-- TAB DATA -->
+            <div id="tab-data" class="tab-content">
+                <button class="btn btn-green" onclick="exportData()">⬇️ EXPORT DATA</button>
+                <label class="btn btn-blue" style="text-align:center">⬆️ IMPORT DATA
+                    <input type="file" id="input-file" accept=".json" style="display:none" onchange="handleImport(event)">
+                </label>
+            </div>
+
             <button class="btn btn-gray" onclick="tutupModal('modal-setting')">Tutup</button>
         </div>
     </div>
@@ -210,16 +164,22 @@ let mode = 'servis';
 let setting = JSON.parse(localStorage.getItem('setting')) || { nama: 'OTOPOS', alamat: '' };
 
 function init(){
-    loadProduk(); loadAntrian(); loadMekanik(); tampilkanKeranjang(); setMode('servis');
+    loadProduk(); loadAntrian(); loadMekanik(); loadPart(); tampilkanKeranjang(); setMode('servis');
     document.getElementById('setting-nama').value = setting.nama;
     document.getElementById('setting-alamat').value = setting.alamat;
 }
 
-// FUNGSI GLOBAL MODAL
+// GLOBAL
 function bukaModal(id){ document.getElementById(id).classList.remove('hidden'); }
 function tutupModal(id){ document.getElementById(id).classList.add('hidden'); }
+function showTab(id, el){
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+    el.classList.add('tab-active');
+}
 
-// FUNGSI GANTI MODE
+// MODE KASIR
 function setMode(m){
     mode = m;
     if(m === 'servis'){
@@ -240,84 +200,84 @@ function setMode(m){
     }
 }
 
-// PRODUK
-function simpanProduk(){
-    const nama = document.getElementById('nama-produk').value;
-    const harga = parseInt(document.getElementById('harga-produk').value);
-    const stok = parseInt(document.getElementById('stok-produk').value);
-    if (!nama ||!harga) return alert('Lengkapi data');
-    produk.push({ id: Date.now(), nama, harga, stok });
-    localStorage.setItem('produk', JSON.stringify(produk));
-    loadProduk(); tutupModal('modal-produk');
-    document.getElementById('nama-produk').value = ''; document.getElementById('harga-produk').value = '';
-}
-function loadProduk(){
-    document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama}">`).join('');
-}
+// KASIR: PRODUK & KERANJANG
+function loadProduk(){ document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama}">`).join(''); }
 function tambahKeKeranjang(){
     const nama = document.getElementById('input-produk').value;
     const qty = parseInt(document.getElementById('input-qty').value) || 1;
     const p = produk.find(x => x.nama === nama);
     if (!p) return alert('Produk tidak ditemukan');
+    if(p.stok < qty) return alert('Stok tidak cukup. Sisa: ' + p.stok);
     const item = keranjang.find(x => x.id === p.id);
     if (item) item.qty += qty; else keranjang.push({...p, qty });
-    tampilkanKeranjang();
-    document.getElementById('input-produk').value = '';
+    tampilkanKeranjang(); document.getElementById('input-produk').value = '';
 }
 function tampilkanKeranjang(){
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     document.getElementById('total-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
     const el = document.getElementById('list-keranjang');
     if (keranjang.length === 0) { el.innerText = 'Keranjang kosong'; return; }
-    el.innerHTML = keranjang.map(i => `
-        <div class="item-keranjang">
-            <span>${i.nama} x${i.qty}</span>
-            <div><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')} </span><button onclick="hapusKeranjang(${i.id})">X</button></div>
-        </div>
-    `).join('');
+    el.innerHTML = keranjang.map(i => `<div class="item-keranjang"><span>${i.nama} x${i.qty}</span><div><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')} </span><button onclick="hapusKeranjang(${i.id})">X</button></div></div>`).join('');
 }
 function hapusKeranjang(id){ keranjang = keranjang.filter(i => i.id!== id); tampilkanKeranjang(); }
 
-// ANTRIAN
+// KASIR: ANTRIAN
 function tambahAntrian(){
-    const nopol = document.getElementById('input-nopol').value.toUpperCase();
-    const motor = document.getElementById('input-motor').value;
-    if (!nopol) return alert('Nopol wajib');
+    const nopol = document.getElementById('input-nopol').value.toUpperCase().trim();
+    const motor = document.getElementById('input-motor').value.trim();
+    if (!nopol) return alert('Nopol wajib diisi');
     antrian.push({ id: Date.now(), nopol, motor });
     localStorage.setItem('antrian', JSON.stringify(antrian));
-    loadAntrian(); tutupModal('modal-antrian');
-    document.getElementById('input-nopol').value = ''; document.getElementById('input-motor').value = '';
+    loadAntrian(); tutupModal('modal-antrian'); document.getElementById('input-nopol').value = ''; document.getElementById('input-motor').value = '';
 }
 function loadAntrian(){
     const el = document.getElementById('list-antrian');
     if (antrian.length === 0) { el.innerHTML = 'Belum ada antrian'; return; }
-    el.innerHTML = antrian.map(a => `<div class="item-keranjang">${a.nopol} - ${a.motor}</div>`).join('');
+    el.innerHTML = antrian.map(a => `<div class="item-keranjang"><span>${a.nopol} - ${a.motor}</span><button onclick="hapusAntrian(${a.id})">Selesai</button></div>`).join('');
+}
+function hapusAntrian(id){ antrian = antrian.filter(a => a.id!== id); localStorage.setItem('antrian', JSON.stringify(antrian)); loadAntrian(); }
+
+// SETTING: PART
+function simpanProduk(){
+    const nama = document.getElementById('nama-produk').value.trim();
+    const harga = parseInt(document.getElementById('harga-produk').value);
+    const stok = parseInt(document.getElementById('stok-produk').value) || 0;
+    if (!nama ||!harga) return alert('Lengkapi Nama dan Harga');
+    produk.push({ id: Date.now(), nama, harga, stok });
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk(); loadPart();
+    document.getElementById('nama-produk').value = ''; document.getElementById('harga-produk').value = '';
+}
+function loadPart(){
+    const el = document.getElementById('list-part');
+    if (produk.length === 0) { el.innerHTML = 'Belum ada part'; return; }
+    el.innerHTML = produk.map(p => `<div class="item-keranjang"><span>${p.nama}</span><span>Stok:${p.stok} | Rp ${p.harga.toLocaleString('id-ID')}</span></div>`).join('');
 }
 
-// MEKANIK
+// SETTING: MEKANIK
 function simpanMekanik(){
-    const nama = document.getElementById('nama-mekanik').value;
-    if (!nama) return alert('Nama wajib');
+    const nama = document.getElementById('nama-mekanik').value.trim();
+    if (!nama) return alert('Nama wajib diisi');
     mekanik.push({ id: Date.now(), nama, gaji: 0 });
     localStorage.setItem('mekanik', JSON.stringify(mekanik));
-    loadMekanik(); tutupModal('modal-mekanik'); document.getElementById('nama-mekanik').value = '';
+    loadMekanik(); document.getElementById('nama-mekanik').value = '';
 }
 function loadMekanik(){
     const el = document.getElementById('list-mekanik');
     if (mekanik.length === 0) { el.innerHTML = 'Belum ada data'; return; }
-    el.innerHTML = mekanik.map(m => `<div class="item-keranjang">${m.nama} <span>Rp ${m.gaji.toLocaleString('id-ID')}</span></div>`).join('');
+    el.innerHTML = mekanik.map(m => `<div class="item-keranjang"><span>${m.nama}</span><span>Rp ${m.gaji.toLocaleString('id-ID')}</span></div>`).join('');
 }
 
-// SETTING + BACKUP
+// SETTING: TOKO & BACKUP
 function simpanSetting(){
     setting.nama = document.getElementById('setting-nama').value;
     setting.alamat = document.getElementById('setting-alamat').value;
     localStorage.setItem('setting', JSON.stringify(setting));
-    alert('Tersimpan'); tutupModal('modal-setting');
+    alert('Setting tersimpan');
 }
 function exportData(){
     const data = { produk, antrian, mekanik, setting };
-    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'backup_otopos.json'; a.click();
 }
@@ -327,10 +287,8 @@ function handleImport(event){
     reader.onload = function(e){
         const data = JSON.parse(e.target.result);
         produk = data.produk || []; antrian = data.antrian || []; mekanik = data.mekanik || []; setting = data.setting || setting;
-        localStorage.setItem('produk', JSON.stringify(produk));
-        localStorage.setItem('antrian', JSON.stringify(antrian));
-        localStorage.setItem('mekanik', JSON.stringify(mekanik));
-        localStorage.setItem('setting', JSON.stringify(setting));
+        localStorage.setItem('produk', JSON.stringify(produk)); localStorage.setItem('antrian', JSON.stringify(antrian));
+        localStorage.setItem('mekanik', JSON.stringify(mekanik)); localStorage.setItem('setting', JSON.stringify(setting));
         location.reload();
     };
     reader.readAsText(file);
@@ -341,7 +299,8 @@ function checkout(){
     if(keranjang.length === 0) return alert('Keranjang kosong');
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     alert(`Mode: ${mode.toUpperCase()}\nCheckout Sukses\nTotal: Rp ${total.toLocaleString('id-ID')}`);
-    keranjang = []; tampilkanKeranjang();
+    keranjang.forEach(item => { const p = produk.find(x => x.id === item.id); if(p) p.stok -= item.qty; });
+    localStorage.setItem('produk', JSON.stringify(produk)); loadProduk(); keranjang = []; tampilkanKeranjang();
 }
 </script>
 </body>
