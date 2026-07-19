@@ -171,6 +171,7 @@ function pindahKeBilling(){
     antrianAktif.part.forEach(p => keranjang.push({...p, tipe:'part'}));
     tampilkanKeranjang(); tutupModal('modal-detail-servis'); alert('Data antrian sudah dipindah ke Billing');
 }
+
 function simpanProduk(){
     const nama = document.getElementById('nama-produk').value.trim();
     const harga = parseInt(document.getElementById('harga-produk').value);
@@ -273,7 +274,6 @@ function simpanRiwayat(total, bayar, kembali){
         potonganBengkel = totalJasa * (persenPotongan / 100);
         gajiMekanik = totalJasa - potonganBengkel;
     }
-
     const transaksi = {
         id: Date.now(), tanggal: new Date().toISOString(), mode: mode,
         nopol: antrianAktif? antrianAktif.nopol : 'DIRECT PART',
@@ -295,9 +295,7 @@ function loadRiwayat(){
     const totalPart = totalOmset - totalJasa;
     const totalGajiMekanik = dataHariIni.reduce((sum, r) => sum + (r.gajiMekanik || 0), 0);
     const totalPotongan = dataHariIni.reduce((sum, r) => sum + (r.potonganBengkel || 0), 0);
-
     document.getElementById('ringkasan-harian').innerHTML = `Transaksi: ${totalTransaksi} | Omset: Rp ${totalOmset.toLocaleString('id-ID')}<br>Jasa: Rp ${totalJasa.toLocaleString('id-ID')} | Part: Rp ${totalPart.toLocaleString('id-ID')}<br>Gaji Mekanik: Rp ${totalGajiMekanik.toLocaleString('id-ID')} | Potongan: Rp ${totalPotongan.toLocaleString('id-ID')}`;
-
     const el = document.getElementById('list-riwayat');
     if(dataHariIni.length === 0) { el.innerHTML = 'Belum ada transaksi'; } else {
         el.innerHTML = dataHariIni.reverse().map(r => {
@@ -306,7 +304,6 @@ function loadRiwayat(){
             return `<div class="item-keranjang"><div><b>${jam}</b> - ${r.nopol} <br><small>Mode: ${r.mode} | Mekanik: ${mekanikNama}</small></div><div><b>Rp ${r.total.toLocaleString('id-ID')}</b></div></div>`;
         }).join('');
     }
-
     const laporanGaji = {};
     dataHariIni.forEach(r => {
         if(r.mekanikId){
@@ -355,11 +352,9 @@ function checkout(){
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
     if(bayar < total) return alert('Uang bayar kurang!');
-
     const kembali = bayar - total;
     cetakStruk(total, bayar, kembali);
     simpanRiwayat(total, bayar, kembali);
-
     keranjang.filter(i => i.tipe === 'part').forEach(item => {
         const p = produk.find(x => x.id === item.id);
         if(p) p.stok -= item.qty;
