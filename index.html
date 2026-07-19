@@ -2,149 +2,160 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>OTOPOS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OtoPOS - Bengkel App</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
 </head>
 <body onload="init()">
 
-    <header>
-        <h1>🔧 OTOPOS</h1>
-        <button onclick="bukaModal('modal-setting')">⚙️ Setting</button>
-    </header>
-
-    <main>
-        <div class="card" style="padding: 8px;">
-            <div class="menu-grid">
-                <button id="btn-servis" class="btn btn-green" onclick="setMode('servis')">MODE SERVIS</button>
-                <button id="btn-part" class="btn btn-gray" onclick="setMode('part')">DIRECT PART</button>
-            </div>
+    <div class="header">
+        <h1 id="nama-bengkel">OTOPOS</h1>
+        <div class="header-btn">
+            <button class="btn btn-blue" onclick="bukaModal('modal-antrian')">+ Tambah Antrian</button>
+            <button class="btn btn-gray" onclick="bukaModal('modal-setting')">Setting</button>
         </div>
-
-        <div id="area-servis" class="card">
-            <h2>ANTRIAN SERVIS</h2>
-            <button class="btn btn-orange btn-besar" onclick="bukaModal('modal-antrian')">+ Tambah Antrian</button>
-            <div id="list-antrian" style="margin-top:10px">Belum ada antrian</div>
-        </div>
-
-        <div class="card">
-            <h2 id="judul-input">TAMBAH KE BILLING SERVIS</h2>
-            <input type="text" id="input-produk" list="list-produk" placeholder="Ketik nama part...">
-            <div class="row">
-                <input type="number" id="input-qty" value="1" min="1" style="width:80px">
-                <button class="btn btn-orange" onclick="tambahKeKeranjang()" style="flex:1">+ Part</button>
-            </div>
-            <div id="area-jasa" style="margin-top:10px">
-                <h4>Tambah Jasa</h4>
-                <div class="row">
-                    <input id="input-jasa" placeholder="Nama Jasa">
-                    <input id="harga-jasa" type="number" placeholder="Harga">
-                    <button class="btn btn-blue" onclick="tambahJasaKeKeranjang()">+</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div class="billing-fixed">
-        <h2>🛒 BILLING <span id="mode-label">SERVIS</span></h2>
-        <div id="list-keranjang">Keranjang kosong</div>
-        <div class="total">
-            <span>TOTAL</span>
-            <span id="total-harga">Rp 0</span>
-        </div>
-        <div id="area-bayar">
-            <div class="row">
-                <input type="number" id="input-bayar" placeholder="Uang Bayar" onkeyup="hitungKembalian()">
-                <input type="text" id="input-kembalian" placeholder="Kembalian" readonly>
-            </div>
-        </div>
-        <button class="btn btn-green btn-besar" onclick="checkout()">SELESAI & CETAK</button>
     </div>
 
-    <datalist id="list-produk"></datalist>
+    <div class="main-container">
+        <div class="kolom">
+            <h3>ANTRIAN SERVIS</h3>
+            <div id="list-antrian" class="list-box">Belum ada antrian</div>
+        </div>
+
+        <div class="kolom">
+            <h3 id="judul-input">TAMBAH KE BILLING</h3>
+            <div class="mode-switch">
+                <button id="btn-servis" class="btn btn-green" onclick="setMode('servis')">Mode Servis</button>
+                <button id="btn-part" class="btn btn-gray" onclick="setMode('part')">Mode Direct Part</button>
+            </div>
+            <div id="area-servis">
+                <input type="text" id="input-produk" list="list-produk" placeholder="Scan/Ketik Nama Part">
+                <datalist id="list-produk"></datalist>
+                <input type="number" id="input-qty" value="1" min="1">
+                <button class="btn btn-green" onclick="tambahKeKeranjang()">+ Part</button>
+            </div>
+            <div id="area-jasa">
+                <input type="text" id="input-jasa" placeholder="Nama Jasa">
+                <input type="number" id="harga-jasa" placeholder="Harga Jasa">
+                <button class="btn btn-green" onclick="tambahJasaKeKeranjang()">+ Jasa</button>
+            </div>
+        </div>
+
+        <div class="kolom">
+            <h3>KERANJANG <span id="mode-label">SERVIS</span></h3>
+            <div id="list-keranjang" class="list-box">Keranjang kosong</div>
+            <div class="total-area">
+                <h4>TOTAL: <span id="total-harga">Rp 0</span></h4>
+            </div>
+            <div id="area-bayar">
+                <div class="row">
+                    <input type="number" id="input-bayar" placeholder="Uang Bayar" onkeyup="hitungKembalian()">
+                    <input type="text" id="input-kembalian" placeholder="Kembalian" readonly>
+                </div>
+            </div>
+            <button class="btn btn-orange btn-full" onclick="checkout()">BAYAR & CETAK</button>
+        </div>
+    </div>
 
     <div id="modal-antrian" class="modal hidden">
         <div class="modal-content">
-            <h3>Tambah Antrian</h3>
+            <h3>Tambah Antrian Baru</h3>
             <input id="input-nopol" placeholder="Nopol: B 1234 CD">
             <input id="input-motor" placeholder="Motor: Beat 2020">
-            <div class="row">
-                <button class="btn btn-gray" onclick="tutupModal('modal-antrian')" style="flex:1">Batal</button>
-                <button class="btn btn-green" onclick="tambahAntrian()" style="flex:1">Simpan</button>
+            <div class="modal-footer">
+                <button class="btn btn-gray" onclick="tutupModal('modal-antrian')">Batal</button>
+                <button class="btn btn-blue" onclick="tambahAntrian()">Simpan Antrian</button>
             </div>
         </div>
     </div>
 
     <div id="modal-detail-servis" class="modal hidden">
-        <div class="modal-content">
+        <div class="modal-content besar">
             <h3>Detail Servis: <span id="detail-nopol"></span></h3>
-            <p><b>Motor:</b> <span id="detail-motor"></span></p>
-            <select id="select-mekanik"></select>
-            <input id="input-keluhan" placeholder="Keluhan">
-            <h4>Jasa</h4>
-            <div class="row"><input id="jasa-nama" placeholder="Nama Jasa"><input id="jasa-harga" type="number" placeholder="Harga"><button class="btn btn-blue" onclick="tambahJasaToAntrian()">+</button></div>
-            <div id="list-jasa-detail"></div>
-            <h4>Part</h4>
-            <div class="row"><select id="part-nama"></select><input id="part-qty" type="number" value="1" style="width:60px"><button class="btn btn-orange" onclick="tambahPartToAntrian()">+</button></div>
-            <div id="list-part-detail"></div>
-            <div class="row">
-                <button class="btn btn-gray" onclick="tutupModal('modal-detail-servis')" style="flex:1">Tutup</button>
-                <button class="btn btn-green" onclick="pindahKeBilling()" style="flex:2">Pindah ke Billing</button>
-                <button class="btn btn-blue" onclick="simpanDetailServis()" style="flex:1">Simpan</button>
+            <p>Motor: <span id="detail-motor"></span></p>
+            <div class="form-row">
+                <label>Pilih Mekanik:</label>
+                <select id="select-mekanik"></select>
+            </div>
+            <textarea id="input-keluhan" placeholder="Keluhan Customer"></textarea>
+            <hr>
+            <h4>Tambah Jasa</h4>
+            <div class="form-row">
+                <input id="jasa-nama" placeholder="Nama Jasa">
+                <input id="jasa-harga" type="number" placeholder="Harga">
+                <button class="btn btn-green" onclick="tambahJasaToAntrian()">+</button>
+            </div>
+            <div id="list-jasa-detail" class="list-box kecil"></div>
+            <hr>
+            <h4>Tambah Part</h4>
+            <div class="form-row">
+                <select id="part-nama"></select>
+                <input id="part-qty" type="number" value="1" min="1">
+                <button class="btn btn-green" onclick="tambahPartToAntrian()">+</button>
+            </div>
+            <div id="list-part-detail" class="list-box kecil"></div>
+            <div class="modal-footer">
+                <button class="btn btn-gray" onclick="tutupModal('modal-detail-servis')">Tutup</button>
+                <button class="btn btn-blue" onclick="simpanDetailServis()">Simpan Data</button>
+                <button class="btn btn-orange" onclick="pindahKeBilling()">Pindah ke Billing</button>
             </div>
         </div>
     </div>
 
     <div id="modal-setting" class="modal hidden">
-        <div class="modal-content">
-            <h3>⚙️ PENGATURAN</h3>
-            <div class="tab-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
-                <button onclick="showTab('tab-toko', this)" class="tab-btn tab-active">Toko</button>
-                <button onclick="showTab('tab-part', this)" class="tab-btn">Part</button>
-                <button onclick="showTab('tab-mekanik', this)" class="tab-btn">Mekanik</button>
-                <button onclick="showTab('tab-laporan', this)" class="tab-btn">Laporan</button>
-                <button onclick="showTab('tab-data', this)" class="tab-btn">Backup</button>
+        <div class="modal-content besar">
+            <h3>Pengaturan</h3>
+            <div class="tabs">
+                <button class="tab-btn tab-active" onclick="showTab('tab-toko', this)">Data Toko</button>
+                <button class="tab-btn" onclick="showTab('tab-part', this)">Data Part</button>
+                <button class="tab-btn" onclick="showTab('tab-mekanik', this)">Data Mekanik</button>
+                <button class="tab-btn" onclick="showTab('tab-laporan', this)">Laporan</button>
+                <button class="tab-btn" onclick="showTab('tab-backup', this)">Backup</button>
             </div>
             <div id="tab-toko" class="tab-content active">
-                <input id="setting-nama" placeholder="Nama Toko">
-                <input id="setting-alamat" placeholder="Alamat Toko">
-                <button class="btn btn-blue" onclick="simpanSetting()">Simpan</button>
+                <input id="setting-nama" placeholder="Nama Bengkel">
+                <textarea id="setting-alamat" placeholder="Alamat Bengkel"></textarea>
+                <button class="btn btn-blue" onclick="simpanSetting()">Simpan Data Toko</button>
             </div>
             <div id="tab-part" class="tab-content">
-                <input id="nama-produk" placeholder="Nama Part">
-                <input id="harga-produk" type="number" placeholder="Harga Jual">
-                <input id="stok-produk" type="number" placeholder="Stok Awal" value="0">
-                <button class="btn btn-orange" onclick="simpanProduk()">Simpan Part</button><hr>
-                <div id="list-part"></div>
+                <div class="form-row">
+                    <input id="nama-produk" placeholder="Nama Part">
+                    <input id="harga-produk" type="number" placeholder="Harga Jual">
+                    <input id="stok-produk" type="number" placeholder="Stok" value="0">
+                    <button class="btn btn-green" onclick="simpanProduk()">Simpan</button>
+                </div>
+                <div id="list-part" class="list-box"></div>
             </div>
-            <!-- TAB MEKANIK UDAH ADA POTONGAN % -->
             <div id="tab-mekanik" class="tab-content">
-                <input id="nama-mekanik" placeholder="Nama Mekanik">
-                <input id="potongan-mekanik" type="number" placeholder="Potongan Bengkel %" value="40">
-                <button class="btn btn-blue" onclick="simpanMekanik()">Simpan Mekanik</button><hr>
-                <div id="list-mekanik"></div>
+                <div class="form-row">
+                    <input id="nama-mekanik" placeholder="Nama Mekanik">
+                    <input id="potongan-mekanik" type="number" placeholder="Potongan Bengkel %" value="40">
+                    <button class="btn btn-green" onclick="simpanMekanik()">Simpan</button>
+                </div>
+                <div id="list-mekanik" class="list-box"></div>
             </div>
             <div id="tab-laporan" class="tab-content">
-                <div class="row">
-                    <input type="date" id="filter-tanggal">
-                    <button class="btn btn-blue" onclick="loadRiwayat()">Filter</button>
-                </div>
-                <div id="ringkasan-harian" style="margin:10px 0; font-weight:bold"></div>
-                <div id="list-riwayat" style="max-height: 300px; overflow-y: auto;"></div>
-                <hr>
+                <input type="date" id="filter-tanggal" onchange="loadRiwayat()">
+                <h4>Ringkasan Harian</h4>
+                <div id="ringkasan-harian"></div>
                 <h4>Laporan Gaji Mekanik</h4>
-                <div id="laporan-gaji-mekanik"></div>
+                <div id="laporan-gaji-mekanik" class="list-box kecil"></div>
+                <h4>Riwayat Transaksi</h4>
+                <div id="list-riwayat" class="list-box"></div>
             </div>
-            <div id="tab-data" class="tab-content">
-                <button class="btn btn-green" onclick="exportData()">⬇️ EXPORT DATA</button>
-                <label class="btn btn-blue">⬆️ IMPORT DATA<input type="file" id="input-file" accept=".json" style="display:none" onchange="handleImport(event)"></label>
+            <div id="tab-backup" class="tab-content">
+                <button class="btn btn-blue" onclick="exportData()">Export Data.json</button>
+                <input type="file" id="import-file" onchange="handleImport(event)">
             </div>
-            <button class="btn btn-gray" onclick="tutupModal('modal-setting')">Tutup</button>
+            <div class="modal-footer">
+                <button class="btn btn-gray" onclick="tutupModal('modal-setting')">Tutup</button>
+            </div>
         </div>
     </div>
 
-    <div id="area-struk"></div>
-
-<script src="app.js"></script>
+    <div id="area-struk" class="struk-print"></div>
+    <script src="app.js"></script>
 </body>
 </html>
