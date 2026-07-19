@@ -7,13 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { -webkit-tap-highlight-color: transparent; background: #f1f5f9; }
-     .btn-press:active { transform: scale(0.97); }
-     .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; }
-     .tab-content { display: none; }
-     .tab-content.active { display: block; }
+    .btn-press:active { transform: scale(0.97); }
+    .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     </style>
 </head>
-<body class="pb-32">
+<body class="pb-32" onload="init()">
 
     <!-- HEADER BIRU -->
     <header class="bg-blue-600 text-white p-3 rounded-b-2xl shadow-md">
@@ -27,10 +27,10 @@
                 <span class="bg-blue-800 px-2 py-1 rounded-lg text-xs flex items-center gap-1">👤 Admin</span>
             </div>
             <div class="flex gap-1.5">
-                <button onclick="bukaModal('modal-produk')" class="bg-orange-500 hover:bg-orange-600 btn-press px-2 py-1.5 rounded-lg font-bold flex items-center gap-1 text-">
+                <button onclick="bukaModal('modal-produk')" class="bg-orange-500 btn-press px-2 py-1.5 rounded-lg font-bold flex items-center gap-1 text-">
                     <span class="bg-white text-orange-500 text- px-1 py-0.5 rounded font-black">F5</span> Part
                 </button>
-                <button onclick="bukaModal('modal-setting')" class="bg-blue-800 hover:bg-blue-900 btn-press px-2 py-1.5 rounded-lg font-bold flex items-center gap-1 text-">
+                <button onclick="bukaModal('modal-setting')" class="bg-blue-800 btn-press px-2 py-1.5 rounded-lg font-bold flex items-center gap-1 text-">
                     <span class="bg-white text-blue-800 text- px-1 py-0.5 rounded font-black">F4</span> Set
                 </button>
             </div>
@@ -52,17 +52,17 @@
         <div id="area-servis" class="bg-white p-3 rounded-xl shadow">
             <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
                 <h3 class="font-black text-red-600 text-sm">DAFTAR ANTRIAN SERVIS</h3>
-                <button onclick="bukaModal('modal-antrian')" class="bg-red-600 hover:bg-red-700 btn-press text-white px-3 py-2 rounded-lg font-bold text-sm">+ Tambah Antrian</button>
+                <button onclick="bukaModal('modal-antrian')" class="bg-red-600 btn-press text-white px-3 py-2 rounded-lg font-bold text-sm">+ Tambah Antrian</button>
             </div>
             <div id="list-antrian" class="min-h-[120px] text-sm">
-                <p class="text-center text-gray-400 py-10">Belum ada antrian. Klik + Tambah Antrian</p>
+                <p class="text-center text-gray-400 py-10">Belum ada antrian</p>
             </div>
 
             <hr class="my-3">
             <div class="flex gap-2">
                 <div class="flex-1">
-                    <label class="text- font-bold text-gray-500">CARI PRODUK (MENAMPILKAN SISA STOK)</label>
-                    <input type="text" id="input-produk" list="list-produk" placeholder="Ketik nama part..." class="w-full border rounded-lg p-2.5 text-sm">
+                    <label class="text- font-bold text-gray-500">CARI PRODUK</label>
+                    <input type="text" id="input-produk" list="list-produk" onchange="tambahKeKeranjang()" placeholder="Ketik nama part..." class="w-full border rounded-lg p-2.5 text-sm">
                 </div>
                 <div>
                     <label class="text- font-bold text-gray-500">QTY</label>
@@ -70,15 +70,9 @@
                 </div>
             </div>
         </div>
-
-        <!-- AREA PART -->
-        <div id="area-part" class="hidden bg-white p-3 rounded-xl shadow">
-             <h3 class="font-black text-emerald-600 mb-2 text-sm">JUAL LANGSUNG</h3>
-             <input type="text" id="input-pembeli" placeholder="Nama Pembeli" class="w-full border bg-emerald-50 rounded-lg p-2.5 text-sm">
-        </div>
     </main>
 
-    <!-- BILLING HITAM FIX BAWAH -->
+    <!-- BILLING -->
     <div class="fixed bottom-0 left-0 right-0 bg-slate-900 text-white p-3 rounded-t-2xl shadow-2xl">
         <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-2">
             <h2 class="font-black text-emerald-400 flex items-center gap-2 text-sm">🛒 BILLING</h2>
@@ -89,63 +83,42 @@
             <span class="font-bold text-slate-400 text-sm">TOTAL:</span>
             <span id="total-harga" class="text-2xl font-black text-emerald-400">Rp 0</span>
         </div>
-        <p class="text- font-bold text-slate-400 mb-1.5">BAYAR</p>
-        <div class="grid grid-cols-3 gap-2 mb-3">
-            <button onclick="setBayar('Tunai', this)" class="btn-bayar btn-press bg-slate-800 border-2 border-emerald-500 text-emerald-400 font-bold py-2.5 rounded-lg text-sm flex items-center justify-center gap-1">💵 Tunai</button>
-            <button onclick="setBayar('QRIS', this)" class="btn-bayar btn-press bg-slate-800 border-slate-700 text-slate-400 font-bold py-2.5 rounded-lg text-sm flex items-center justify-center gap-1">📱 QRIS</button>
-            <button onclick="setBayar('Debit', this)" class="btn-bayar btn-press bg-slate-800 border-slate-700 text-slate-400 font-bold py-2.5 rounded-lg text-sm flex items-center justify-center gap-1">💳 Debit</button>
-        </div>
-        <button onclick="checkout()" class="btn-press w-full bg-emerald-500 hover:bg-emerald-600 text-black font-black py-3.5 rounded-xl text-base">SELESAI & CETAK</button>
+        <button onclick="checkout()" class="btn-press w-full bg-emerald-500 text-black font-black py-3.5 rounded-xl text-base">SELESAI & CETAK</button>
     </div>
 
     <datalist id="list-produk"></datalist>
 
-    <!-- MODAL SETTING BARU LENGKAP 4 TAB -->
+    <!-- MODAL SETTING 4 TAB -->
     <div id="modal-setting" class="hidden fixed inset-0 bg-black/50 z-30 flex items-end justify-center">
-        <div class="bg-white rounded-t-2xl p-4 w-full max-h-[80vh] overflow-y-auto">
-            <h3 class="font-black text-lg mb-3 flex items-center gap-2">⚙️ PENGATURAN</h3>
-            
-            <!-- TAB MENU -->
+        <div class="bg-white rounded-t-2xl p-4 w-full max-h- overflow-y-auto">
+            <h3 class="font-black text-lg mb-3">⚙️ PENGATURAN</h3>
             <div class="flex border-b mb-3 text-sm font-bold">
                 <button onclick="showTab('tab-mekanik', this)" class="tab-btn tab-active flex-1 py-2">Data Mekanik</button>
                 <button onclick="showTab('tab-toko', this)" class="tab-btn flex-1 py-2 text-gray-500">Data Toko</button>
                 <button onclick="showTab('tab-data', this)" class="tab-btn flex-1 py-2 text-gray-500">Manajemen Data</button>
                 <button onclick="showTab('tab-laporan', this)" class="tab-btn flex-1 py-2 text-gray-500">Laporan</button>
             </div>
-
-            <!-- TAB 1: DATA MEKANIK -->
             <div id="tab-mekanik" class="tab-content active space-y-3">
-                <button onclick="bukaModalTambahMekanik()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold">+ Tambah Mekanik</button>
+                <button onclick="bukaModal('modal-mekanik')" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-bold">+ Tambah Mekanik</button>
                 <div id="list-mekanik"></div>
             </div>
-
-            <!-- TAB 2: DATA TOKO -->
             <div id="tab-toko" class="tab-content space-y-2">
                 <input id="setting-nama" placeholder="Nama Toko" class="w-full border p-3 rounded-lg">
                 <input id="setting-alamat" placeholder="Alamat" class="w-full border p-3 rounded-lg">
-                <input id="setting-telp" placeholder="No Telp" class="w-full border p-3 rounded-lg">
-                <button onclick="simpanSetting()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Simpan Data Toko</button>
+                <button onclick="simpanSetting()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Simpan</button>
             </div>
-
-            <!-- TAB 3: MANAJEMEN DATA -->
             <div id="tab-data" class="tab-content space-y-3">
-                <h4 class="font-bold text-xs text-gray-600">BACKUP & RESTORE</h4>
-                <button onclick="exportData()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">⬇️ EXPORT BACKUP.JSON</button>
-                <label class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold flex justify-center items-center cursor-pointer">⬆️ IMPORT BACKUP.JSON
+                <button onclick="exportData()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">⬇️ EXPORT</button>
+                <label class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold flex justify-center cursor-pointer">⬆️ IMPORT
                     <input type="file" id="input-file" accept=".json" class="hidden" onchange="handleImport(event)">
                 </label>
             </div>
-
-            <!-- TAB 4: LAPORAN -->
-            <div id="tab-laporan" class="tab-content text-center text-gray-400 py-10">
-                Fitur Laporan Segera Hadir
-            </div>
-
+            <div id="tab-laporan" class="tab-content text-center text-gray-400 py-10">Segera Hadir</div>
             <button onclick="tutupModal('modal-setting')" class="w-full bg-gray-200 mt-4 py-3 rounded-lg font-bold">Tutup</button>
         </div>
     </div>
 
-    <!-- MODAL TAMBAH MEKANIK -->
+    <!-- MODAL MEKANIK -->
     <div id="modal-mekanik" class="hidden fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl p-4 w-full max-w-sm">
             <h3 class="font-black text-lg mb-3">Tambah Mekanik</h3>
@@ -156,11 +129,145 @@
             </div>
         </div>
     </div>
+    
+    <!-- MODAL PRODUK -->
+    <div id="modal-produk" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-4 w-full max-w-sm">
+            <h3 class="font-black text-lg mb-3">Input Part</h3>
+            <input id="nama-produk" placeholder="Nama Part" class="w-full border p-3 rounded-lg mb-2">
+            <input id="harga-produk" type="number" placeholder="Harga Jual" class="w-full border p-3 rounded-lg mb-2">
+            <input id="stok-produk" type="number" placeholder="Stok Awal" value="0" class="w-full border p-3 rounded-lg mb-3">
+            <div class="flex gap-2">
+                <button onclick="tutupModal('modal-produk')" class="flex-1 bg-gray-200 py-3 rounded-lg font-bold">Batal</button>
+                <button onclick="simpanProduk()" class="flex-1 bg-orange-500 text-white py-3 rounded-lg font-bold">Simpan</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- MODAL LAINNYA TETAP -->
-    <div id="modal-antrian" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">...</div>
-    <div id="modal-produk" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">...</div>
+    <!-- MODAL ANTRIAN -->
+    <div id="modal-antrian" class="hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-4 w-full max-w-sm">
+            <h3 class="font-black text-lg mb-3">Tambah Antrian</h3>
+            <input id="input-nopol" placeholder="Nopol: B 1234 CD" class="w-full border p-3 rounded-lg mb-2 uppercase">
+            <input id="input-motor" placeholder="Motor: Beat 2020" class="w-full border p-3 rounded-lg mb-3">
+            <div class="flex gap-2">
+                <button onclick="tutupModal('modal-antrian')" class="flex-1 bg-gray-200 py-3 rounded-lg font-bold">Batal</button>
+                <button onclick="tambahAntrian()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold">Simpan</button>
+            </div>
+        </div>
+    </div>
 
-<script src="app.js"></script>
+<script>
+let produk = JSON.parse(localStorage.getItem('produk')) || [];
+let antrian = JSON.parse(localStorage.getItem('antrian')) || [];
+let mekanik = JSON.parse(localStorage.getItem('mekanik')) || [];
+let keranjang = [];
+let mode = 'servis';
+let setting = JSON.parse(localStorage.getItem('setting')) || { nama: 'BENGKEL HELICOPTER', alamat: '' };
+
+function init(){
+    loadProduk(); loadAntrian(); loadMekanik(); tampilkanKeranjang();
+    document.getElementById('nama-toko-header').innerText = setting.nama;
+    document.getElementById('setting-nama').value = setting.nama;
+    document.getElementById('setting-alamat').value = setting.alamat;
+}
+function bukaModal(id){ document.getElementById(id).classList.remove('hidden'); }
+function tutupModal(id){ document.getElementById(id).classList.add('hidden'); }
+function setMode(m, el){
+    mode = m;
+    document.querySelectorAll('#btn-servis, #btn-part').forEach(b => { b.classList.remove('bg-red-600', 'text-white'); b.classList.add('text-gray-500'); });
+    el.classList.add('bg-red-600', 'text-white');
+    document.getElementById('billing-mode').innerText = m === 'servis'? 'SERVIS' : 'PART';
+}
+function showTab(id, el){
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active'); b.classList.add('text-gray-500'); });
+    el.classList.add('tab-active'); el.classList.remove('text-gray-500');
+}
+function tambahAntrian(){
+    const nopol = document.getElementById('input-nopol').value.toUpperCase();
+    const motor = document.getElementById('input-motor').value;
+    if (!nopol) return alert('Nopol wajib');
+    antrian.push({ id: Date.now(), nopol, motor });
+    localStorage.setItem('antrian', JSON.stringify(antrian));
+    loadAntrian(); tutupModal('modal-antrian');
+}
+function loadAntrian(){
+    const el = document.getElementById('list-antrian');
+    if (antrian.length === 0) { el.innerHTML = '<p class="text-center text-gray-400 py-10">Belum ada antrian</p>'; return; }
+    el.innerHTML = antrian.map(a => `<div class="p-2 border-b">${a.nopol} - ${a.motor}</div>`).join('');
+}
+function simpanProduk(){
+    const nama = document.getElementById('nama-produk').value;
+    const harga = parseInt(document.getElementById('harga-produk').value);
+    const stok = parseInt(document.getElementById('stok-produk').value);
+    if (!nama ||!harga) return alert('Lengkapi data');
+    produk.push({ id: Date.now(), nama, harga, stok });
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk(); tutupModal('modal-produk'); alert('Tersimpan');
+}
+function loadProduk(){
+    document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama} - Stok:${p.stok}">`).join('');
+}
+function tambahKeKeranjang(){
+    const val = document.getElementById('input-produk').value;
+    const nama = val.split(' - ')[0];
+    const qty = parseInt(document.getElementById('input-qty').value);
+    const p = produk.find(x => x.nama === nama);
+    if (!p) return;
+    const item = keranjang.find(x => x.id === p.id);
+    if (item) item.qty += qty; else keranjang.push({...p, qty });
+    tampilkanKeranjang();
+    document.getElementById('input-produk').value = '';
+}
+function tampilkanKeranjang(){
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    document.getElementById('total-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+    const el = document.getElementById('list-keranjang');
+    if (keranjang.length === 0) { el.innerText = 'Keranjang kosong'; return; }
+    el.innerHTML = keranjang.map(i => `<div class="flex justify-between"><span>${i.nama} x${i.qty}</span><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')}</span></div>`).join('');
+}
+function simpanMekanik(){
+    const nama = document.getElementById('nama-mekanik').value;
+    if (!nama) return alert('Nama wajib');
+    mekanik.push({ id: Date.now(), nama, gaji: 0 });
+    localStorage.setItem('mekanik', JSON.stringify(mekanik));
+    loadMekanik(); tutupModal('modal-mekanik');
+}
+function loadMekanik(){
+    const el = document.getElementById('list-mekanik');
+    if (mekanik.length === 0) { el.innerHTML = '<p class="text-center text-gray-400">Belum ada data mekanik</p>'; return; }
+    el.innerHTML = mekanik.map(m => `<div class="p-3 border rounded-lg"><p class="font-bold">${m.nama}</p></div>`).join('');
+}
+function simpanSetting(){
+    setting.nama = document.getElementById('setting-nama').value;
+    setting.alamat = document.getElementById('setting-alamat').value;
+    localStorage.setItem('setting', JSON.stringify(setting));
+    document.getElementById('nama-toko-header').innerText = setting.nama;
+    alert('Tersimpan'); tutupModal('modal-setting');
+}
+function exportData(){
+    const data = { produk, antrian, mekanik, setting };
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'backup.json'; a.click();
+}
+function handleImport(event){
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const data = JSON.parse(e.target.result);
+        produk = data.produk || []; antrian = data.antrian || []; mekanik = data.mekanik || []; setting = data.setting || setting;
+        localStorage.setItem('produk', JSON.stringify(produk));
+        localStorage.setItem('antrian', JSON.stringify(antrian));
+        localStorage.setItem('mekanik', JSON.stringify(mekanik));
+        localStorage.setItem('setting', JSON.stringify(setting));
+        location.reload();
+    };
+    reader.readAsText(file);
+}
+function checkout(){ alert('Checkout Rp ' + keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0).toLocaleString('id-ID')); keranjang = []; tampilkanKeranjang(); }
+</script>
 </body>
 </html>
