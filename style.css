@@ -31,19 +31,29 @@ input:focus, select:focus { border: 2px solid #2563eb; }
 .modal.hidden { display: none; }
 .modal-content { background: white; padding: 20px; border-radius: 16px 16px 0 0; width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; max-height: 85vh; overflow-y: auto; }
 .modal-content h3 { font-weight: 900; font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
-.tab-header { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px; }
-.tab-btn { padding: 10px 5px; font-weight: bold; border: none; background: #f1f5f9; border-radius: 8px; font-size: 12px; }
+.tab-header { display: grid; gap: 5px; margin-bottom: 10px; }
+.tab-btn { padding: 10px 5px; font-weight: bold; border: none; background: #f1f5f9; border-radius: 8px; font-size: 12px; cursor: pointer;}
 .tab-active { background: #2563eb; color: white; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 #area-servis.hidden { display: none; }
 hr { border: none; border-top: 1px solid #e5e7eb; margin: 10px 0; }
 #area-struk { display: none; }
+
+/* Penambahan CSS Baru untuk Efek Redup saat Tombol di Lock/Disabled */
+button:disabled {
+    background: #94a3b8 !important;
+    color: #cbd5e1 !important;
+    cursor: not-allowed;
+    transform: none !important;
+    opacity: 0.7;
+}
+
 @media print {
     body * { visibility: hidden; }
     #area-struk, #area-struk * { visibility: visible; }
-    #area-struk { position: absolute; left: 0; top: 0; width: 58mm; font-family: 'Courier New', monospace; font-size: 10px; color: black; }
-   .struk-header { text-align: center; font-weight: bold; margin-bottom: 5px; }
-   .struk-line { border-bottom: 1px dashed #000; margin: 5px 0; }
-   .struk-item { display: flex; justify-content: space-between; }
+    #area-struk { position: absolute; left: 0; top: 0; width: 58mm; font-family: 'Courier New', monospace; font-size: 10px; color: black; display: block !important;}
+    .struk-header { text-align: center; font-weight: bold; margin-bottom: 5px; }
+    .struk-line { border-bottom: 1px dashed #000; margin: 5px 0; }
+    .struk-item { display: flex; justify-content: space-between; }
 }
