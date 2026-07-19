@@ -90,7 +90,6 @@ function loadAntrian(){
     el.innerHTML = antrian.map(a => `<div class="item-keranjang" style="cursor:pointer" onclick="bukaDetailAntrian(${a.id})"><span><b>${a.nopol}</b> - ${a.motor}</span><button onclick="event.stopPropagation(); hapusAntrian(${a.id})">Selesai</button></div>`).join('');
 }
 function hapusAntrian(id){ antrian = antrian.filter(a => a.id!== id); localStorage.setItem('antrian', JSON.stringify(antrian)); loadAntrian(); }
-
 function bukaDetailAntrian(id){
     antrianAktif = antrian.find(a => a.id === id);
     if(!antrianAktif) return;
@@ -188,11 +187,45 @@ function handleImport(event){
     }; reader.readAsText(file);
 }
 
+// CETAK STRUK
+function cetakStruk(total){
+    const area = document.getElementById('area-struk');
+    const tanggal = new Date().toLocaleString('id-ID');
+    const mekanikNama = antrianAktif && antrianAktif.mekanikId ? mekanik.find(m => m.id === antrianAktif.mekanikId).nama : '-';
+    const nopol = antrianAktif ? antrianAktif.nopol : 'DIRECT PART';
+
+    let listItem = '';
+    keranjang.forEach(i => {
+        listItem += `<div class="struk-item"><span>${i.nama} ${i.tipe === 'part' ? 'x'+i.qty : ''}</span><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')}</span></div>`;
+    });
+
+    area.innerHTML = `
+        <div class="struk-header">
+            <div style="font-size:14px">${setting.nama.toUpperCase()}</div>
+            <div>${setting.alamat}</div>
+            <div class="struk-line"></div>
+        </div>
+        <div>Tanggal: ${tanggal}</div>
+        <div>Nopol: ${nopol}</div>
+        <div>Mekanik: ${mekanikNama}</div>
+        <div>Mode: ${mode.toUpperCase()}</div>
+        <div class="struk-line"></div>
+        ${listItem}
+        <div class="struk-line"></div>
+        <div class="struk-item" style="font-weight:bold; font-size:12px"><span>TOTAL</span><span>Rp ${total.toLocaleString('id-ID')}</span></div>
+        <div class="struk-line"></div>
+        <div style="text-align:center">Terima Kasih</div>
+    `;
+    window.print();
+}
+
 // CHECKOUT
 function checkout(){
     if(keranjang.length === 0) return alert('Keranjang kosong');
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
-    alert(`Mode: ${mode.toUpperCase()}\nCheckout Sukses\nTotal: Rp ${total.toLocaleString('id-ID')}`);
+    cetakStruk(total);
     keranjang.filter(i => i.tipe === 'part').forEach(item => { const p = produk.find(x => x.id === item.id); if(p) p.stok -= item.qty; });
-    localStorage.setItem('produk', JSON.stringify(produk)); loadProduk(); loadPart(); keranjang = []; tampilkanKeranjang();
+    localStorage.setItem('produk', JSON.stringify(produk)); loadProduk(); loadPart();
+    if(mode === 'servis' && antrianAktif){ hapusAntrian(antrianAktif.id); }
+    keranjang = []; tampilkanKeranjang();
 }
