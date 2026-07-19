@@ -14,6 +14,7 @@ function init(){
     document.getElementById('setting-nama').value = setting.nama;
     document.getElementById('setting-alamat').value = setting.alamat;
     document.getElementById('filter-tanggal').valueAsDate = new Date();
+    document.getElementById('nama-bengkel').innerText = setting.nama;
 }
 
 function bukaModal(id){
@@ -24,11 +25,6 @@ function tutupModal(id){
     document.getElementById(id).classList.add('hidden');
     antrianAktif = null;
     editId = null;
-    document.getElementById('nama-produk').value = '';
-    document.getElementById('harga-produk').value = '';
-    document.getElementById('stok-produk').value = '0';
-    document.getElementById('nama-mekanik').value = '';
-    document.getElementById('potongan-mekanik').value = '40';
 }
 function showTab(id, el){
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -87,7 +83,7 @@ function tampilkanKeranjang(){
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     document.getElementById('total-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
     const el = document.getElementById('list-keranjang');
-    if (keranjang.length === 0) { el.innerText = 'Keranjang kosong'; document.getElementById('input-bayar').value=''; document.getElementById('input-kembalian').value=''; return; }
+    if (keranjang.length === 0) { el.innerHTML = 'Keranjang kosong'; document.getElementById('input-bayar').value=''; document.getElementById('input-kembalian').value=''; return; }
     el.innerHTML = keranjang.map(i => `<div class="item-keranjang"><span>${i.nama} ${i.tipe === 'jasa'? '' : 'x'+i.qty}</span><div><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')} </span><button onclick="hapusKeranjang(${i.id})">X</button></div></div>`).join('');
     hitungKembalian();
 }
@@ -167,9 +163,10 @@ function loadDetailPart(){
 function pindahKeBilling(){
     if(!antrianAktif) return;
     keranjang = [];
-    antrianAktif.jasa.forEach(j => keranjang.push({...j, qty:1, tipe:'jasa'}));
-    antrianAktif.part.forEach(p => keranjang.push({...p, tipe:'part'}));
-    tampilkanKeranjang(); tutupModal('modal-detail-servis'); alert('Data antrian sudah dipindah ke Billing');
+    antrianAktif.jasa.forEach(j => keranjang.push({id: j.id, nama: j.nama, harga: j.harga, qty:1, tipe:'jasa'}));
+    antrianAktif.part.forEach(p => keranjang.push({id: p.id, nama: p.nama, harga: p.harga, qty: p.qty, tipe:'part'}));
+    tampilkanKeranjang(); tutupModal('modal-detail-servis');
+    alert('Data antrian sudah dipindah ke Billing. Total: Rp ' + keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0).toLocaleString('id-ID'));
 }
 
 function simpanProduk(){
@@ -191,15 +188,7 @@ function simpanProduk(){
 function loadPart(){
     const el = document.getElementById('list-part');
     if (produk.length === 0) { el.innerHTML = 'Belum ada part'; return; }
-    el.innerHTML = produk.map(p => `
-        <div class="item-keranjang">
-            <span>${p.nama}</span>
-            <div>
-                <span>Stok:${p.stok} | Rp ${p.harga.toLocaleString('id-ID')}</span>
-                <button style="background:#2563eb" onclick="editProduk(${p.id})">Edit</button>
-                <button onclick="hapusProduk(${p.id})">Hapus</button>
-            </div>
-        </div>`).join('');
+    el.innerHTML = produk.map(p => `<div class="item-keranjang"><span>${p.nama}</span><div><span>Stok:${p.stok} | Rp ${p.harga.toLocaleString('id-ID')}</span><button style="background:#2563eb" onclick="editProduk(${p.id})">Edit</button><button onclick="hapusProduk(${p.id})">Hapus</button></div></div>`).join('');
     document.getElementById('part-nama').innerHTML = '<option value="">- Pilih Part -</option>' + produk.map(p => `<option value="${p.nama}">${p.nama}</option>`).join('');
 }
 function editProduk(id){
@@ -234,15 +223,7 @@ function simpanMekanik(){
 function loadMekanik(){
     const el = document.getElementById('list-mekanik');
     if (mekanik.length === 0) { el.innerHTML = 'Belum ada data'; return; }
-    el.innerHTML = mekanik.map(m => `
-        <div class="item-keranjang">
-            <span>${m.nama}</span>
-            <div>
-                <span>Potongan: ${m.potongan}%</span>
-                <button style="background:#2563eb" onclick="editMekanik(${m.id})">Edit</button>
-                <button onclick="hapusMekanik(${m.id})">Hapus</button>
-            </div>
-        </div>`).join('');
+    el.innerHTML = mekanik.map(m => `<div class="item-keranjang"><span>${m.nama}</span><div><span>Potongan: ${m.potongan}%</span><button style="background:#2563eb" onclick="editMekanik(${m.id})">Edit</button><button onclick="hapusMekanik(${m.id})">Hapus</button></div></div>`).join('');
 }
 function editMekanik(id){
     const m = mekanik.find(x => x.id === id);
@@ -261,6 +242,7 @@ function simpanSetting(){
     setting.nama = document.getElementById('setting-nama').value;
     setting.alamat = document.getElementById('setting-alamat').value;
     localStorage.setItem('setting', JSON.stringify(setting));
+    document.getElementById('nama-bengkel').innerText = setting.nama;
     alert('Setting tersimpan');
 }
 
@@ -360,8 +342,7 @@ function checkout(){
         if(p) p.stok -= item.qty;
     });
     localStorage.setItem('produk', JSON.stringify(produk));
-    loadProduk();
-    loadPart();
+    loadProduk(); loadPart();
     if(mode === 'servis' && antrianAktif){ hapusAntrian(antrianAktif.id); }
     keranjang = [];
     document.getElementById('input-bayar').value = '';
