@@ -9,7 +9,7 @@ input, select, textarea { width: 100%; padding: 8px; margin-bottom: 8px; border:
 .btn-green { background: #16a34a; }.btn-blue { background: #2563eb; }.btn-orange { background: #f97316; }.btn-gray { background: #64748b; }
 .btn-full { width: 100%; padding: 12px; font-size: 16px; }
 .mode-switch { display: flex; gap: 5px; margin-bottom: 10px; }
-.mode-switch.btn { flex: 1; }
+.form-row { display: flex; gap: 5px; align-items: center; }
 #mode-label { background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; float: right; }
 .list-box { flex-grow: 1; overflow-y: auto; border: 1px solid #e2e8f0; padding: 5px; border-radius: 4px; }
 .list-box.kecil { height: 100px; }
