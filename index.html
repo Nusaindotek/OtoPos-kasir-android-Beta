@@ -9,7 +9,8 @@
 <body onload="init()">
 
     <header>
-        <h1>🔧 OTOPOS</h1>
+        <!-- Perbaikan: Menambahkan ID agar nama toko bisa berubah dinamis -->
+        <h1 id="header-toko">🔧 OTOPOS</h1>
         <button onclick="bukaModal('modal-setting')">⚙️ Setting</button>
     </header>
 
@@ -45,7 +46,6 @@
         </div>
     </main>
 
-    <!-- BILLING FIXED - UDAH DITAMBAH AREA BAYAR -->
     <div class="billing-fixed">
         <h2>🛒 BILLING <span id="mode-label">SERVIS</span></h2>
         <div id="list-keranjang">Keranjang kosong</div>
@@ -101,10 +101,12 @@
     <div id="modal-setting" class="modal hidden">
         <div class="modal-content">
             <h3>⚙️ PENGATURAN</h3>
-            <div class="tab-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+            <!-- Perbaikan: Menambah kolom grid untuk tab baru (Gaji) -->
+            <div class="tab-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;">
                 <button onclick="showTab('tab-toko', this)" class="tab-btn tab-active">Toko</button>
                 <button onclick="showTab('tab-part', this)" class="tab-btn">Part</button>
                 <button onclick="showTab('tab-mekanik', this)" class="tab-btn">Mekanik</button>
+                <button onclick="showTab('tab-gaji', this)" class="tab-btn">Gaji</button>
                 <button onclick="showTab('tab-laporan', this)" class="tab-btn">Laporan</button>
                 <button onclick="showTab('tab-data', this)" class="tab-btn">Backup</button>
             </div>
@@ -124,6 +126,12 @@
                 <input id="nama-mekanik" placeholder="Nama Mekanik">
                 <button class="btn btn-blue" onclick="simpanMekanik()">Simpan Mekanik</button><hr>
                 <div id="list-mekanik"></div>
+            </div>
+            <!-- Fitur Baru: Tab Manajemen Gaji Konter Jasa -->
+            <div id="tab-gaji" class="tab-content">
+                <h4>TOTAL PENDAPATAN JASA MEKANIK</h4>
+                <p style="font-size: 12px; color: #64748b; margin-bottom: 10px;">Gaji akan terakumulasi otomatis dari setiap tindakan servis.</p>
+                <div id="list-gaji"></div>
             </div>
             <div id="tab-laporan" class="tab-content">
                 <div class="row">
