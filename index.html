@@ -4,46 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>OTOPOS</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #f1f5f9; color: #333; padding-bottom: 200px; }
-        header { background: #2563eb; color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-        header h1 { font-size: 20px; font-weight: 900; }
-        header button { background: #1e40af; border: none; color: white; font-size: 16px; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        main { padding: 16px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin: 0 auto; }
-      .card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-      .card h2 { font-weight: 900; margin-bottom: 12px; font-size: 16px; }
-      .card h4 { font-weight: 900; margin: 10px 0 8px 0; font-size: 14px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
-        input:focus, select:focus { border: 2px solid #2563eb; }
-      .row { display: flex; gap: 10px; align-items: center; }
-      .row input, .row select { margin-bottom: 0; }
-      .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-      .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
-      .btn:active { transform: scale(0.95); }
-      .btn-green { background: #16a34a; color: white; }
-      .btn-blue { background: #2563eb; color: white; }
-      .btn-orange { background: #ea580c; color: white; }
-      .btn-gray { background: #e5e7eb; color: black; }
-      .btn-besar { width: 100%; padding: 16px; font-size: 18px; }
-      .total { display: flex; justify-content: space-between; font-size: 24px; font-weight: 900; color: #4ade80; margin: 10px 0; padding-top: 10px; border-top: 1px dashed #475569; }
-        #list-keranjang { min-height: 60px; margin-bottom: 10px; max-height: 120px; overflow-y: auto; }
-      .item-keranjang { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; padding: 8px 0; border-bottom: 1px dashed #e5e7eb; }
-      .item-keranjang:last-child { border-bottom: none; }
-      .item-keranjang button { background: #ef4444; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 12px; font-weight: bold; }
-      .billing-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: white; padding: 16px; border-radius: 16px 16px 0 0; max-width: 600px; margin: 0 auto; }
-      .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
-      .modal.hidden { display: none; }
-      .modal-content { background: white; padding: 20px; border-radius: 16px 16px 0 0; width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; max-height: 85vh; overflow-y: auto; }
-      .modal-content h3 { font-weight: 900; font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
-      .tab-header { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px; }
-      .tab-btn { padding: 10px 5px; font-weight: bold; border: none; background: #f1f5f9; border-radius: 8px; font-size: 12px; }
-      .tab-active { background: #2563eb; color: white; }
-      .tab-content { display: none; }
-      .tab-content.active { display: block; }
-        #area-servis.hidden { display: none; }
-        hr { border: none; border-top: 1px solid #e5e7eb; margin: 10px 0; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body onload="init()">
 
@@ -53,7 +14,7 @@
     </header>
 
     <main>
-        <!-- TOMBOL MODE KASIR -->
+        <!-- TOMBOL MODE -->
         <div class="card" style="padding: 8px;">
             <div class="menu-grid">
                 <button id="btn-servis" class="btn btn-green" onclick="setMode('servis')">MODE SERVIS</button>
@@ -68,12 +29,12 @@
             <div id="list-antrian" style="margin-top:10px">Belum ada antrian</div>
         </div>
 
-        <!-- INPUT PRODUK -->
+        <!-- INPUT KASIR -->
         <div class="card">
             <h2 id="judul-input">TAMBAH KE BILLING SERVIS</h2>
             <input type="text" id="input-produk" list="list-produk" placeholder="Ketik nama part...">
             <div class="row">
-                <input type="number" id="input-qty" value="1" min="1">
+                <input type="number" id="input-qty" value="1" min="1" style="width:80px">
                 <button class="btn btn-orange" onclick="tambahKeKeranjang()" style="flex:1">+ Part</button>
             </div>
             <div id="area-jasa" style="margin-top:10px">
@@ -85,12 +46,11 @@
                 </div>
             </div>
         </div>
-
     </main>
 
     <!-- BILLING FIXED -->
     <div class="billing-fixed">
-        <h2 style="font-size:16px; margin-bottom:8px;">🛒 BILLING <span id="mode-label" style="font-size:12px; background:#ef4444; padding:2px 6px; border-radius:4px">SERVIS</span></h2>
+        <h2>🛒 BILLING <span id="mode-label">SERVIS</span></h2>
         <div id="list-keranjang">Keranjang kosong</div>
         <div class="total">
             <span>TOTAL</span>
@@ -120,24 +80,13 @@
             <h3>Detail Servis: <span id="detail-nopol"></span></h3>
             <p><b>Motor:</b> <span id="detail-motor"></span></p>
             <select id="select-mekanik"></select>
-            <input id="input-keluhan" placeholder="Keluhan: Mesin kasar / Ganti Oli">
-            
+            <input id="input-keluhan" placeholder="Keluhan">
             <h4>Jasa</h4>
-            <div class="row">
-                <input id="jasa-nama" placeholder="Nama Jasa" style="flex:2">
-                <input id="jasa-harga" type="number" placeholder="Harga" style="flex:1">
-                <button class="btn btn-blue" onclick="tambahJasaToAntrian()">+</button>
-            </div>
-            <div id="list-jasa-detail" style="max-height:100px; overflow-y:auto"></div>
-
+            <div class="row"><input id="jasa-nama" placeholder="Nama Jasa"><input id="jasa-harga" type="number" placeholder="Harga"><button class="btn btn-blue" onclick="tambahJasaToAntrian()">+</button></div>
+            <div id="list-jasa-detail"></div>
             <h4>Part</h4>
-            <div class="row">
-                <select id="part-nama" style="flex:2"></select>
-                <input id="part-qty" type="number" value="1" style="width:60px">
-                <button class="btn btn-orange" onclick="tambahPartToAntrian()">+</button>
-            </div>
-            <div id="list-part-detail" style="max-height:100px; overflow-y:auto"></div>
-
+            <div class="row"><select id="part-nama"></select><input id="part-qty" type="number" value="1" style="width:60px"><button class="btn btn-orange" onclick="tambahPartToAntrian()">+</button></div>
+            <div id="list-part-detail"></div>
             <div class="row">
                 <button class="btn btn-gray" onclick="tutupModal('modal-detail-servis')" style="flex:1">Tutup</button>
                 <button class="btn btn-green" onclick="pindahKeBilling()" style="flex:2">Pindah ke Billing</button>
@@ -156,43 +105,33 @@
                 <button onclick="showTab('tab-mekanik', this)" class="tab-btn">Data Mekanik</button>
                 <button onclick="showTab('tab-data', this)" class="tab-btn">Backup</button>
             </div>
-
             <div id="tab-toko" class="tab-content active">
                 <input id="setting-nama" placeholder="Nama Toko">
                 <input id="setting-alamat" placeholder="Alamat Toko">
-                <button class="btn btn-blue" onclick="simpanSetting()">Simpan Data Toko</button>
+                <button class="btn btn-blue" onclick="simpanSetting()">Simpan</button>
             </div>
-
             <div id="tab-part" class="tab-content">
-                <h4>Tambah Part Baru</h4>
                 <input id="nama-produk" placeholder="Nama Part">
                 <input id="harga-produk" type="number" placeholder="Harga Jual">
                 <input id="stok-produk" type="number" placeholder="Stok Awal" value="0">
-                <button class="btn btn-orange" onclick="simpanProduk()">Simpan Part</button>
-                <hr>
-                <h4>Daftar Part</h4>
-                <div id="list-part" style="max-height: 200px; overflow-y: auto;">Belum ada part</div>
+                <button class="btn btn-orange" onclick="simpanProduk()">Simpan Part</button><hr>
+                <div id="list-part"></div>
             </div>
-
             <div id="tab-mekanik" class="tab-content">
-                <h4>Tambah Mekanik Baru</h4>
                 <input id="nama-mekanik" placeholder="Nama Mekanik">
-                <button class="btn btn-blue" onclick="simpanMekanik()">Simpan Mekanik</button>
-                <hr>
-                <h4>Daftar Mekanik</h4>
-                <div id="list-mekanik" style="max-height: 200px; overflow-y: auto;">Belum ada data</div>
+                <button class="btn btn-blue" onclick="simpanMekanik()">Simpan Mekanik</button><hr>
+                <div id="list-mekanik"></div>
             </div>
-
             <div id="tab-data" class="tab-content">
-                <button class="btn btn-green" onclick="exportData()">⬇️ EXPORT DATA JSON</button>
-                <label class="btn btn-blue" style="text-align:center; margin-top:10px">⬆️ IMPORT DATA JSON
-                    <input type="file" id="input-file" accept=".json" style="display:none" onchange="handleImport(event)">
-                </label>
+                <button class="btn btn-green" onclick="exportData()">⬇️ EXPORT DATA</button>
+                <label class="btn btn-blue">⬆️ IMPORT DATA<input type="file" id="input-file" accept=".json" style="display:none" onchange="handleImport(event)"></label>
             </div>
-
             <button class="btn btn-gray" onclick="tutupModal('modal-setting')">Tutup</button>
         </div>
     </div>
+
+    <!-- AREA STRUK UNTUK PRINT -->
+    <div id="area-struk"></div>
 
 <script src="app.js"></script>
 </body>
