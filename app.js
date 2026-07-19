@@ -11,12 +11,10 @@ let editId = null;
 function init(){
     loadProduk(); loadAntrian(); loadMekanik(); loadPart(); loadMekanikToSelect();
     tampilkanKeranjang(); setMode('servis');
-    let elNama = document.getElementById('setting-nama');
-    let elAlamat = document.getElementById('setting-alamat');
-    if(elNama) elNama.value = setting.nama;
-    if(elAlamat) elAlamat.value = setting.alamat;
-    let elTanggal = document.getElementById('filter-tanggal');
-    if(elTanggal) elTanggal.valueAsDate = new Date();
+    document.getElementById('setting-nama').value = setting.nama;
+    document.getElementById('setting-alamat').value = setting.alamat;
+    document.getElementById('filter-tanggal').valueAsDate = new Date();
+    document.getElementById('nama-bengkel').innerText = setting.nama;
 }
 
 function bukaModal(id){
@@ -58,7 +56,6 @@ function setMode(m){
 }
 
 function loadProduk(){ document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama}">`).join(''); }
-
 function tambahKeKeranjang(){
     const nama = document.getElementById('input-produk').value.trim();
     const qty = parseInt(document.getElementById('input-qty').value) || 1;
@@ -69,7 +66,6 @@ function tambahKeKeranjang(){
     if (item) item.qty += qty; else keranjang.push({...p, qty, tipe: 'part' });
     tampilkanKeranjang(); document.getElementById('input-produk').value = '';
 }
-
 function tambahJasaKeKeranjang(){
     const nama = document.getElementById('input-jasa').value.trim();
     const harga = parseInt(document.getElementById('harga-jasa').value) || 0;
@@ -77,14 +73,12 @@ function tambahJasaKeKeranjang(){
     keranjang.push({ id: Date.now(), nama, harga, qty: 1, tipe: 'jasa' });
     tampilkanKeranjang(); document.getElementById('input-jasa').value = ''; document.getElementById('harga-jasa').value = '';
 }
-
 function hitungKembalian(){
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
     const kembali = bayar - total;
     document.getElementById('input-kembalian').value = kembali >= 0? `Rp ${kembali.toLocaleString('id-ID')}` : 'Kurang';
 }
-
 function tampilkanKeranjang(){
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     document.getElementById('total-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
@@ -169,9 +163,10 @@ function loadDetailPart(){
 function pindahKeBilling(){
     if(!antrianAktif) return;
     keranjang = [];
-    antrianAktif.jasa.forEach(j => keranjang.push({...j, qty:1, tipe:'jasa'}));
-    antrianAktif.part.forEach(p => keranjang.push({...p, tipe:'part'}));
-    tampilkanKeranjang(); tutupModal('modal-detail-servis'); alert('Data antrian sudah dipindah ke Billing');
+    antrianAktif.jasa.forEach(j => keranjang.push({id: j.id, nama: j.nama, harga: j.harga, qty:1, tipe:'jasa'}));
+    antrianAktif.part.forEach(p => keranjang.push({id: p.id, nama: p.nama, harga: p.harga, qty: p.qty, tipe:'part'}));
+    tampilkanKeranjang(); tutupModal('modal-detail-servis');
+    alert('Data antrian sudah dipindah ke Billing. Total: Rp ' + keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0).toLocaleString('id-ID'));
 }
 
 function simpanProduk(){
@@ -247,6 +242,7 @@ function simpanSetting(){
     setting.nama = document.getElementById('setting-nama').value;
     setting.alamat = document.getElementById('setting-alamat').value;
     localStorage.setItem('setting', JSON.stringify(setting));
+    document.getElementById('nama-bengkel').innerText = setting.nama;
     alert('Setting tersimpan');
 }
 
