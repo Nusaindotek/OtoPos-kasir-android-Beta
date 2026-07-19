@@ -99,7 +99,6 @@ function loadAntrian(){
     if (antrian.length === 0) { el.innerHTML = 'Belum ada antrian'; return; }
     el.innerHTML = antrian.map(a => `<div class="item-keranjang" style="cursor:pointer" onclick="bukaDetailAntrian(${a.id})"><span><b>${a.nopol}</b> - ${a.motor}</span><button onclick="event.stopPropagation(); hapusAntrian(${a.id})">Selesai</button></div>`).join('');
 }
-// PERBAIKAN 1: KONFIRMASI HAPUS
 function hapusAntrian(id){
     if(!confirm('Yakin antrian ini sudah selesai dan dibayar?')) return;
     antrian = antrian.filter(a => a.id!== id);
@@ -140,7 +139,6 @@ function loadDetailJasa(){
     el.innerHTML = antrianAktif.jasa.map(j => `<div class="item-keranjang"><span>${j.nama}</span><span>Rp ${j.harga.toLocaleString('id-ID')} <button onclick="hapusJasaAntrian(${j.id})">X</button></span></div>`).join('');
 }
 function hapusJasaAntrian(id){ antrianAktif.jasa = antrianAktif.jasa.filter(j => j.id!== id); localStorage.setItem('antrian', JSON.stringify(antrian)); loadDetailJasa(); }
-// PERBAIKAN 2: CEK STOK
 function tambahPartToAntrian(){
     if(!antrianAktif) return;
     const nama = document.getElementById('part-nama').value;
@@ -166,23 +164,22 @@ function pindahKeBilling(){
     tampilkanKeranjang(); tutupModal('modal-detail-servis'); alert('Data antrian sudah dipindah ke Billing');
 }
 
-// PERBAIKAN 3: EDIT / HAPUS PART & MEKANIK
 function simpanProduk(){
     const nama = document.getElementById('nama-produk').value.trim();
     const harga = parseInt(document.getElementById('harga-produk').value);
     const stok = parseInt(document.getElementById('stok-produk').value) || 0;
     if (!nama ||!harga) return alert('Lengkapi Nama dan Harga');
 
-    if(editId){ // MODE EDIT
+    if(editId){
         const p = produk.find(x => x.id === editId);
         p.nama = nama; p.harga = harga; p.stok = stok;
         editId = null;
-    } else { // MODE TAMBAH
+    } else {
         if(produk.find(p => p.nama.toLowerCase() === nama.toLowerCase())) return alert('Nama part sudah ada');
         produk.push({ id: Date.now(), nama, harga, stok });
     }
     localStorage.setItem('produk', JSON.stringify(produk));
-    loadProduk(); loadPart(); tutupModal('modal-setting'); bukaModal('modal-setting'); // refresh modal
+    loadProduk(); loadPart(); tutupModal('modal-setting'); bukaModal('modal-setting');
 }
 function loadPart(){
     const el = document.getElementById('list-part');
@@ -268,7 +265,6 @@ function simpanRiwayat(total){
     riwayat.push(transaksi);
     localStorage.setItem('riwayat', JSON.stringify(riwayat));
 }
-// PERBAIKAN 4: FIX UNDEFINED
 function loadRiwayat(){
     const tglFilter = document.getElementById('filter-tanggal').value;
     const dataHariIni = riwayat.filter(r => r.tanggal.split('T')[0] === tglFilter);
@@ -312,4 +308,19 @@ function cetakStruk(total){
     window.print();
 }
 
-function checkout
+function checkout(){
+    if(keranjang.length === 0) return alert('Keranjang kosong');
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    cetakStruk(total);
+    simpanRiwayat(total);
+    keranjang.filter(i => i.tipe === 'part').forEach(item => {
+        const p = produk.find(x => x.id === item.id);
+        if(p) p.stok -= item.qty;
+    });
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk();
+    loadPart();
+    if(mode === 'servis' && antrianAktif){ hapusAntrian(antrianAktif.id); }
+    keranjang = [];
+    tampilkanKeranjang();
+}
