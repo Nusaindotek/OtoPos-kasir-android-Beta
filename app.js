@@ -1,51 +1,752 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background: #f1f5f9; color: #333; padding-bottom: 200px; }
-header { background: #2563eb; color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-header h1 { font-size: 20px; font-weight: 900; }
-header button { background: #1e40af; border: none; color: white; font-size: 16px; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-main { padding: 16px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin: 0 auto; }
-.card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.card h2 { font-weight: 900; margin-bottom: 12px; font-size: 16px; }
-.card h4 { font-weight: 900; margin: 10px 0 8px 0; font-size: 14px; }
-input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; font-size: 16px; outline: none; }
-input:focus, select:focus { border: 2px solid #2563eb; }
-.row { display: flex; gap: 10px; align-items: center; }
-.row input,.row select { margin-bottom: 0; }
-.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.1s; }
-.btn:active { transform: scale(0.95); }
-.btn-green { background: #16a34a; color: white; }
-.btn-blue { background: #2563eb; color: white; }
-.btn-orange { background: #ea580c; color: white; }
-.btn-gray { background: #e5e7eb; color: black; }
-.btn-besar { width: 100%; padding: 16px; font-size: 18px; }
-.total { display: flex; justify-content: space-between; font-size: 24px; font-weight: 900; color: #4ade80; margin: 10px 0; padding-top: 10px; border-top: 1px dashed #475569; }
-#list-keranjang { min-height: 60px; margin-bottom: 10px; max-height: 120px; overflow-y: auto; }
-.item-keranjang { display: flex; justify-content: space-between; align-items:center; margin-bottom: 6px; font-size: 14px; padding: 8px 0; border-bottom: 1px dashed #e5e7eb; }
-.item-keranjang:last-child { border-bottom: none; }
-.item-keranjang button { background: #ef4444; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 12px; font-weight: bold; margin-left: 5px; }
-.billing-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: white; padding: 16px; border-radius: 16px 16px 0 0; max-width: 600px; margin: 0 auto; }
-.billing-fixed h2 { font-size:16px; margin-bottom:8px; }
-#mode-label { font-size:12px; background:#ef4444; padding:2px 6px; border-radius:4px }
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
-.modal.hidden { display: none; }
-.modal-content { background: white; padding: 20px; border-radius: 16px 16px 0 0; width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; max-height: 85vh; overflow-y: auto; }
-.modal-content h3 { font-weight: 900; font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
-.tab-header { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px; }
-.tab-btn { padding: 10px 5px; font-weight: bold; border: none; background: #f1f5f9; border-radius: 8px; font-size: 12px; }
-.tab-active { background: #2563eb; color: white; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-#area-servis.hidden { display: none; }
-hr { border: none; border-top: 1px solid #e5e7eb; margin: 10px 0; }
-#area-bayar { margin: 10px 0; }
-#input-kembalian { background: #334155; color: #4ade80; font-weight: bold; }
-#area-struk { display: none; }
-@media print {
-    body * { visibility: hidden; }
-    #area-struk, #area-struk * { visibility: visible; }
-    #area-struk { position: absolute; left: 0; top: 0; width: 58mm; font-family: 'Courier New', monospace; font-size: 10px; color: black; }
-  .struk-header { text-align: center; font-weight: bold; margin-bottom: 5px; }
-  .struk-line { border-bottom: 1px dashed #000; margin: 5px 0; }
-  .struk-item { display: flex; justify-content: space-between; }
+let produk = JSON.parse(localStorage.getItem('produk')) || [];
+let antrian = JSON.parse(localStorage.getItem('antrian')) || [];
+let mekanik = JSON.parse(localStorage.getItem('mekanik')) || [];
+let riwayat = JSON.parse(localStorage.getItem('riwayat')) || [];
+let keranjang = [];
+let mode = 'servis';
+let setting = JSON.parse(localStorage.getItem('setting')) || { nama: 'OTOPOS', alamat: '' };
+let antrianAktif = null;
+let editId = null;
+
+function init(){
+    loadProduk(); loadAntrian(); loadMekanik(); loadPart(); loadMekanikToSelect();
+    tampilkanKeranjang(); setMode('servis');
+    document.getElementById('setting-nama').value = setting.nama;
+    document.getElementById('setting-alamat').value = setting.alamat;
+    document.getElementById('filter-tanggal').valueAsDate = new Date();
+}
+
+function bukaModal(id){
+    document.getElementById(id).classList.remove('hidden');
+    if(id === 'modal-setting') loadRiwayat();
+}
+function tutupModal(id){
+    document.getElementById(id).classList.add('hidden');
+    antrianAktif = null;
+    editId = null;
+    document.getElementById('nama-produk').value = '';
+    document.getElementById('harga-produk').value = '';
+    document.getElementById('stok-produk').value = '0';
+    document.getElementById('nama-mekanik').value = '';
+    document.getElementById('potongan-mekanik').value = '40';
+}
+function showTab(id, el){
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+    el.classList.add('tab-active');
+}
+
+function setMode(m){
+    mode = m;
+    if(m === 'servis'){
+        document.getElementById('btn-servis').className = 'btn btn-green';
+        document.getElementById('btn-part').className = 'btn btn-gray';
+        document.getElementById('area-servis').classList.remove('hidden');
+        document.getElementById('area-jasa').style.display = 'block';
+        document.getElementById('judul-input').innerText = 'TAMBAH KE BILLING SERVIS';
+        document.getElementById('mode-label').innerText = 'SERVIS';
+        document.getElementById('mode-label').style.background = '#ef4444';
+    } else {
+        document.getElementById('btn-servis').className = 'btn btn-gray';
+        document.getElementById('btn-part').className = 'btn btn-orange';
+        document.getElementById('area-servis').classList.add('hidden');
+        document.getElementById('area-jasa').style.display = 'none';
+        document.getElementById('judul-input').innerText = 'TAMBAH KE BILLING DIRECT PART';
+        document.getElementById('mode-label').innerText = 'PART';
+        document.getElementById('mode-label').style.background = '#16a34a';
+        keranjang = []; tampilkanKeranjang();
+    }
+}
+
+function loadProduk(){ document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama}">`).join(''); }
+function tambahKeKeranjang(){
+    const nama = document.getElementById('input-produk').value.trim();
+    const qty = parseInt(document.getElementById('input-qty').value) || 1;
+    const p = produk.find(x => x.nama === nama);
+    if (!p) return alert('Produk tidak ditemukan');
+    if(p.stok < qty) return alert('Stok tidak cukup. Sisa: ' + p.stok);
+    const item = keranjang.find(x => x.id === p.id);
+    if (item) item.qty += qty; else keranjang.push({...p, qty, tipe: 'part' });
+    tampilkanKeranjang(); document.getElementById('input-produk').value = '';
+}
+function tambahJasaKeKeranjang(){
+    const nama = document.getElementById('input-jasa').value.trim();
+    const harga = parseInt(document.getElementById('harga-jasa').value) || 0;
+    if(!nama ||!harga) return alert('Lengkapi Nama Jasa dan Harga');
+    keranjang.push({ id: Date.now(), nama, harga, qty: 1, tipe: 'jasa' });
+    tampilkanKeranjang(); document.getElementById('input-jasa').value = ''; document.getElementById('harga-jasa').value = '';
+}
+function hitungKembalian(){
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
+    const kembali = bayar - total;
+    document.getElementById('input-kembalian').value = kembali >= 0? `Rp ${kembali.toLocaleString('id-ID')}` : 'Kurang';
+}
+function tampilkanKeranjang(){
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    document.getElementById('total-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+    const el = document.getElementById('list-keranjang');
+    if (keranjang.length === 0) { el.innerText = 'Keranjang kosong'; document.getElementById('input-bayar').value=''; document.getElementById('input-kembalian').value=''; return; }
+    el.innerHTML = keranjang.map(i => `<div class="item-keranjang"><span>${i.nama} ${i.tipe === 'jasa'? '' : 'x'+i.qty}</span><div><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')} </span><button onclick="hapusKeranjang(${i.id})">X</button></div></div>`).join('');
+    hitungKembalian();
+}
+function hapusKeranjang(id){ keranjang = keranjang.filter(i => i.id!== id); tampilkanKeranjang(); }
+
+function tambahAntrian(){
+    const nopol = document.getElementById('input-nopol').value.toUpperCase().trim();
+    const motor = document.getElementById('input-motor').value.trim();
+    if (!nopol) return alert('Nopol wajib diisi');
+    antrian.push({ id: Date.now(), nopol, motor, mekanikId: null, keluhan: '', jasa: [], part: [] });
+    localStorage.setItem('antrian', JSON.stringify(antrian));
+    loadAntrian(); tutupModal('modal-antrian');
+    document.getElementById('input-nopol').value = ''; document.getElementById('input-motor').value = '';
+}
+function loadAntrian(){
+    const el = document.getElementById('list-antrian');
+    if (antrian.length === 0) { el.innerHTML = 'Belum ada antrian'; return; }
+    el.innerHTML = antrian.map(a => `<div class="item-keranjang" style="cursor:pointer" onclick="bukaDetailAntrian(${a.id})"><span><b>${a.nopol}</b> - ${a.motor}</span><button onclick="event.stopPropagation(); hapusAntrian(${a.id})">Selesai</button></div>`).join('');
+}
+function hapusAntrian(id){
+    if(!confirm('Yakin antrian ini sudah selesai dan dibayar?')) return;
+    antrian = antrian.filter(a => a.id!== id);
+    localStorage.setItem('antrian', JSON.stringify(antrian));
+    loadAntrian();
+}
+
+function bukaDetailAntrian(id){
+    antrianAktif = antrian.find(a => a.id === id);
+    if(!antrianAktif) return;
+    document.getElementById('detail-nopol').innerText = antrianAktif.nopol;
+    document.getElementById('detail-motor').innerText = antrianAktif.motor;
+    document.getElementById('select-mekanik').value = antrianAktif.mekanikId || '';
+    document.getElementById('input-keluhan').value = antrianAktif.keluhan || '';
+    loadDetailJasa(); loadDetailPart(); bukaModal('modal-detail-servis');
+}
+function simpanDetailServis(){
+    if(!antrianAktif) return;
+    antrianAktif.mekanikId = parseInt(document.getElementById('select-mekanik').value) || null;
+    antrianAktif.keluhan = document.getElementById('input-keluhan').value;
+    localStorage.setItem('antrian', JSON.stringify(antrian)); loadAntrian(); alert('Data servis tersimpan');
+}
+function loadMekanikToSelect(){
+    const el = document.getElementById('select-mekanik');
+    el.innerHTML = '<option value="">- Pilih Mekanik -</option>' + mekanik.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
+}
+function tambahJasaToAntrian(){
+    if(!antrianAktif) return;
+    const nama = document.getElementById('jasa-nama').value; const harga = parseInt(document.getElementById('jasa-harga').value);
+    if(!nama ||!harga) return alert('Lengkapi data jasa');
+    antrianAktif.jasa.push({id: Date.now(), nama, harga});
+    localStorage.setItem('antrian', JSON.stringify(antrian)); loadDetailJasa();
+    document.getElementById('jasa-nama').value = ''; document.getElementById('jasa-harga').value = '';
+}
+function loadDetailJasa(){
+    const el = document.getElementById('list-jasa-detail');
+    if(antrianAktif.jasa.length === 0) { el.innerHTML = 'Belum ada jasa'; return; }
+    el.innerHTML = antrianAktif.jasa.map(j => `<div class="item-keranjang"><span>${j.nama}</span><span>Rp ${j.harga.toLocaleString('id-ID')} <button onclick="hapusJasaAntrian(${j.id})">X</button></span></div>`).join('');
+}
+function hapusJasaAntrian(id){ antrianAktif.jasa = antrianAktif.jasa.filter(j => j.id!== id); localStorage.setItem('antrian', JSON.stringify(antrian)); loadDetailJasa(); }
+function tambahPartToAntrian(){
+    if(!antrianAktif) return;
+    const nama = document.getElementById('part-nama').value;
+    const qty = parseInt(document.getElementById('part-qty').value) || 1;
+    const p = produk.find(x => x.nama === nama);
+    if(!p) return alert('Part tidak ditemukan');
+    if(p.stok < qty) return alert('Stok tidak cukup. Sisa: ' + p.stok);
+    antrianAktif.part.push({...p, qty});
+    localStorage.setItem('antrian', JSON.stringify(antrian));
+    loadDetailPart();
+    document.getElementById('part-nama').value = '';
+}
+function loadDetailPart(){
+    const el = document.getElementById('list-part-detail');
+    if(antrianAktif.part.length === 0) { el.innerHTML = 'Belum ada part'; return; }
+    el.innerHTML = antrianAktif.part.map(p => `<div class="item-keranjang"><span>${p.nama} x${p.qty}</span><span>Rp ${(p.harga*p.qty).toLocaleString('id-ID')}</span></div>`).join('');
+}
+function pindahKeBilling(){
+    if(!antrianAktif) return;
+    keranjang = [];
+    antrianAktif.jasa.forEach(j => keranjang.push({...j, qty:1, tipe:'jasa'}));
+    antrianAktif.part.forEach(p => keranjang.push({...p, tipe:'part'}));
+    tampilkanKeranjang(); tutupModal('modal-detail-servis'); alert('Data antrian sudah dipindah ke Billing');
+}
+
+function simpanProduk(){
+    const nama = document.getElementById('nama-produk').value.trim();
+    const harga = parseInt(document.getElementById('harga-produk').value);
+    const stok = parseInt(document.getElementById('stok-produk').value) || 0;
+    if (!nama ||!harga) return alert('Lengkapi Nama dan Harga');
+    if(editId){
+        const p = produk.find(x => x.id === editId);
+        p.nama = nama; p.harga = harga; p.stok = stok;
+        editId = null;
+    } else {
+        if(produk.find(p => p.nama.toLowerCase() === nama.toLowerCase())) return alert('Nama part sudah ada');
+        produk.push({ id: Date.now(), nama, harga, stok });
+    }
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk(); loadPart(); tutupModal('modal-setting'); bukaModal('modal-setting');
+}
+function loadPart(){
+    const el = document.getElementById('list-part');
+    if (produk.length === 0) { el.innerHTML = 'Belum ada part'; return; }
+    el.innerHTML = produk.map(p => `
+        <div class="item-keranjang">
+            <span>${p.nama}</span>
+            <div>
+                <span>Stok:${p.stok} | Rp ${p.harga.toLocaleString('id-ID')}</span>
+                <button style="background:#2563eb" onclick="editProduk(${p.id})">Edit</button>
+                <button onclick="hapusProduk(${p.id})">Hapus</button>
+            </div>
+        </div>`).join('');
+    document.getElementById('part-nama').innerHTML = '<option value="">- Pilih Part -</option>' + produk.map(p => `<option value="${p.nama}">${p.nama}</option>`).join('');
+}
+function editProduk(id){
+    const p = produk.find(x => x.id === id);
+    editId = id;
+    document.getElementById('nama-produk').value = p.nama;
+    document.getElementById('harga-produk').value = p.harga;
+    document.getElementById('stok-produk').value = p.stok;
+}
+function hapusProduk(id){
+    if(!confirm('Hapus part ini?')) return;
+    produk = produk.filter(p => p.id!== id);
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk(); loadPart();
+}
+
+function simpanMekanik(){
+    const nama = document.getElementById('nama-mekanik').value.trim();
+    const potongan = parseInt(document.getElementById('potongan-mekanik').value) || 40;
+    if (!nama) return alert('Nama wajib diisi');
+    if(editId){
+        const m = mekanik.find(x => x.id === editId);
+        m.nama = nama; m.potongan = potongan;
+        editId = null;
+    } else {
+        if(mekanik.find(m => m.nama.toLowerCase() === nama.toLowerCase())) return alert('Nama mekanik sudah ada');
+        mekanik.push({ id: Date.now(), nama, potongan });
+    }
+    localStorage.setItem('mekanik', JSON.stringify(mekanik));
+    loadMekanik(); loadMekanikToSelect(); tutupModal('modal-setting'); bukaModal('modal-setting');
+}
+function loadMekanik(){
+    const el = document.getElementById('list-mekanik');
+    if (mekanik.length === 0) { el.innerHTML = 'Belum ada data'; return; }
+    el.innerHTML = mekanik.map(m => `
+        <div class="item-keranjang">
+            <span>${m.nama}</span>
+            <div>
+                <span>Potongan: ${m.potongan}%</span>
+                <button style="background:#2563eb" onclick="editMekanik(${m.id})">Edit</button>
+                <button onclick="hapusMekanik(${m.id})">Hapus</button>
+            </div>
+        </div>`).join('');
+}
+function editMekanik(id){
+    const m = mekanik.find(x => x.id === id);
+    editId = id;
+    document.getElementById('nama-mekanik').value = m.nama;
+    document.getElementById('potongan-mekanik').value = m.potongan || 40;
+}
+function hapusMekanik(id){
+    if(!confirm('Hapus mekanik ini?')) return;
+    mekanik = mekanik.filter(m => m.id!== id);
+    localStorage.setItem('mekanik', JSON.stringify(mekanik));
+    loadMekanik(); loadMekanikToSelect();
+}
+
+function simpanSetting(){
+    setting.nama = document.getElementById('setting-nama').value;
+    setting.alamat = document.getElementById('setting-alamat').value;
+    localStorage.setItem('setting', JSON.stringify(setting));
+    alert('Setting tersimpan');
+}
+
+function simpanRiwayat(total, bayar, kembali){
+    const totalJasa = keranjang.filter(i => i.tipe === 'jasa').reduce((sum, i) => sum + i.harga * i.qty, 0);
+    let gajiMekanik = 0;
+    let potonganBengkel = 0;
+    if(antrianAktif && antrianAktif.mekanikId){
+        const m = mekanik.find(x => x.id === antrianAktif.mekanikId);
+        const persenPotongan = m.potongan || 40;
+        potonganBengkel = totalJasa * (persenPotongan / 100);
+        gajiMekanik = totalJasa - potonganBengkel;
+    }
+
+    const transaksi = {
+        id: Date.now(), tanggal: new Date().toISOString(), mode: mode,
+        nopol: antrianAktif? antrianAktif.nopol : 'DIRECT PART',
+        motor: antrianAktif? antrianAktif.motor : '-',
+        mekanikId: antrianAktif? antrianAktif.mekanikId : null,
+        items: [...keranjang], total: total, bayar: bayar, kembali: kembali,
+        totalJasa: totalJasa, gajiMekanik: gajiMekanik, potonganBengkel: potonganBengkel
+    };
+    riwayat.push(transaksi);
+    localStorage.setItem('riwayat', JSON.stringify(riwayat));
+}
+
+function loadRiwayat(){
+    const tglFilter = document.getElementById('filter-tanggal').value;
+    const dataHariIni = riwayat.filter(r => r.tanggal.split('T')[0] === tglFilter);
+    const totalOmset = dataHariIni.reduce((sum, r) => sum + r.total, 0);
+    const totalTransaksi = dataHariIni.length;
+    const totalJasa = dataHariIni.reduce((sum, r) => sum + (r.totalJasa || 0), 0);
+    const totalPart = totalOmset - totalJasa;
+    const totalGajiMekanik = dataHariIni.reduce((sum, r) => sum + (r.gajiMekanik || 0), 0);
+    const totalPotongan = dataHariIni.reduce((sum, r) => sum + (r.potonganBengkel || 0), 0);
+
+    document.getElementById('ringkasan-harian').innerHTML = `Transaksi: ${totalTransaksi} | Omset: Rp ${totalOmset.toLocaleString('id-ID')}<br>Jasa: Rp ${totalJasa.toLocaleString('id-ID')} | Part: Rp ${totalPart.toLocaleString('id-ID')}<br>Gaji Mekanik: Rp ${totalGajiMekanik.toLocaleString('id-ID')} | Potongan: Rp ${totalPotongan.toLocaleString('id-ID')}`;
+
+    const el = document.getElementById('list-riwayat');
+    if(dataHariIni.length === 0) { el.innerHTML = 'Belum ada transaksi'; } else {
+        el.innerHTML = dataHariIni.reverse().map(r => {
+            const jam = new Date(r.tanggal).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+            const mekanikNama = r.mekanikId? mekanik.find(m => m.id === r.mekanikId)?.nama || '-' : '-';
+            return `<div class="item-keranjang"><div><b>${jam}</b> - ${r.nopol} <br><small>Mode: ${r.mode} | Mekanik: ${mekanikNama}</small></div><div><b>Rp ${r.total.toLocaleString('id-ID')}</b></div></div>`;
+        }).join('');
+    }
+
+    // LAPORAN GAJI PER MEKANIK
+    const laporanGaji = {};
+    dataHariIni.forEach(r => {
+        if(r.mekanikId){
+            if(!laporanGaji[r.mekanikId]) laporanGaji[r.mekanikId] = {total:0, jumlah:0};
+            laporanGaji[r.mekanikId].total += r.gajiMekanik || 0;
+            laporanGaji[r.mekanikId].jumlah += 1;
+        }
+    });
+    const elGaji = document.getElementById('laporan-gaji-mekanik');
+    elGaji.innerHTML = Object.keys(laporanGaji).length === 0? 'Belum ada gaji' :
+    Object.keys(laporanGaji).map(id => {
+        const m = mekanik.find(x => x.id == id);
+        return `<div class="item-keranjang"><span>${m.nama} - ${laporanGaji[id].jumlah} servis</span><b>Rp ${laporanGaji[id].total.toLocaleString('id-ID')}</b></div>`;
+    }).join('');
+}
+
+function exportData(){
+    const data = { produk, antrian, mekanik, riwayat, setting };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'backup_otopos.json'; a.click();
+}
+function handleImport(event){
+    const file = event.target.files[0]; if(!file) return; const reader = new FileReader();
+    reader.onload = function(e){
+        const data = JSON.parse(e.target.result);
+        produk = data.produk || []; antrian = data.antrian || []; mekanik = data.mekanik || []; riwayat = data.riwayat || []; setting = data.setting || setting;
+        localStorage.setItem('produk', JSON.stringify(produk)); localStorage.setItem('antrian', JSON.stringify(antrian));
+        localStorage.setItem('mekanik', JSON.stringify(mekanik)); localStorage.setItem('riwayat', JSON.stringify(riwayat)); localStorage.setItem('setting', JSON.stringify(setting));
+        alert('Import berhasil'); location.reload();
+    }; reader.readAsText(file);
+}
+
+function cetakStruk(total, bayar, kembali){
+    const area = document.getElementById('area-struk');
+    const tanggal = new Date().toLocaleString('id-ID');
+    const mekanikNama = antrianAktif && antrianAktif.mekanikId? mekanik.find(m => m.id === antrianAktif.mekanikId)?.nama || '-' : '-';
+    const nopol = antrianAktif? antrianAktif.nopol : 'DIRECT PART';
+    let listItem = '';
+    keranjang.forEach(i => { listItem += `<div class="struk-item"><span>${i.nama} ${i.tipe === 'part'? 'x'+i.qty : ''}</span><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')}</span></div>`; });
+    area.innerHTML = `<div class="struk-header"><div style="font-size:14px">${setting.nama.toUpperCase()}</div><div>${setting.alamat}</div><div class="struk-line"></div></div><div>Tanggal: ${tanggal}</div><div>Nopol: ${nopol}</div><div>Mekanik: ${mekanikNama}</div><div>Mode: ${mode.toUpperCase()}</div><div class="struk-line"></div>${listItem}<div class="struk-line"></div><div class="struk-item"><span>SUBTOTAL</span><span>Rp ${total.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>BAYAR</span><span>Rp ${bayar.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>KEMBALI</span><span>Rp ${kembali.toLocaleString('id-ID')}</span></div><div class="struk-line"></div><div style="text-align:center">Terima Kasih</div>`;
+    window.print();
+}
+
+function checkout(){
+    if(keranjang.length === 0) return alert('Keranjang kosong');
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
+    if(bayar < total) return alert('Uang bayar kurang!');
+
+    const kembali = bayar - total;
+    cetakStruk(total, bayar, kembali);
+    simpanRiwayat(total, bayar, kembali);
+
+    keranjang.filter(i => i.tipe === 'part').forEach(item => {
+        const p = produk.find(x => x.id === item.id);
+        if(p) p.stok -= item.qty;
+    });
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk();
+    loadPart();
+    if(mode === 'servis' && antrianAktif){ hapusAntrian(antrianAktif.id); }
+    keranjang = [];
+    document.getElementById('input-bayar').value = '';
+    tampilkanKeranjang();
+}
+// BAGIAN 2/2 - app.js v1.3 KONSEP POTONGAN MEKANIK
+let produk = JSON.parse(localStorage.getItem('produk')) || [];
+let antrian = JSON.parse(localStorage.getItem('antrian')) || [];
+let mekanik = JSON.parse(localStorage.getItem('mekanik')) || [];
+let riwayat = JSON.parse(localStorage.getItem('riwayat')) || [];
+let keranjang = [];
+let mode = 'servis';
+let setting = JSON.parse(localStorage.getItem('setting')) || { nama: 'OTOPOS', alamat: '' };
+let antrianAktif = null;
+let editId = null;
+
+function init(){
+    loadProduk(); loadAntrian(); loadMekanik(); loadPart(); loadMekanikToSelect();
+    tampilkanKeranjang(); setMode('servis');
+    document.getElementById('setting-nama').value = setting.nama;
+    document.getElementById('setting-alamat').value = setting.alamat;
+    document.getElementById('filter-tanggal').valueAsDate = new Date();
+}
+
+function bukaModal(id){
+    document.getElementById(id).classList.remove('hidden');
+    if(id === 'modal-setting') loadRiwayat();
+}
+function tutupModal(id){
+    document.getElementById(id).classList.add('hidden');
+    antrianAktif = null;
+    editId = null;
+    document.getElementById('nama-produk').value = '';
+    document.getElementById('harga-produk').value = '';
+    document.getElementById('stok-produk').value = '0';
+    document.getElementById('nama-mekanik').value = '';
+    document.getElementById('potongan-mekanik').value = '40';
+}
+function showTab(id, el){
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+    el.classList.add('tab-active');
+}
+
+function setMode(m){
+    mode = m;
+    if(m === 'servis'){
+        document.getElementById('btn-servis').className = 'btn btn-green';
+        document.getElementById('btn-part').className = 'btn btn-gray';
+        document.getElementById('area-servis').classList.remove('hidden');
+        document.getElementById('area-jasa').style.display = 'block';
+        document.getElementById('judul-input').innerText = 'TAMBAH KE BILLING SERVIS';
+        document.getElementById('mode-label').innerText = 'SERVIS';
+        document.getElementById('mode-label').style.background = '#ef4444';
+    } else {
+        document.getElementById('btn-servis').className = 'btn btn-gray';
+        document.getElementById('btn-part').className = 'btn btn-orange';
+        document.getElementById('area-servis').classList.add('hidden');
+        document.getElementById('area-jasa').style.display = 'none';
+        document.getElementById('judul-input').innerText = 'TAMBAH KE BILLING DIRECT PART';
+        document.getElementById('mode-label').innerText = 'PART';
+        document.getElementById('mode-label').style.background = '#16a34a';
+        keranjang = []; tampilkanKeranjang();
+    }
+}
+
+function loadProduk(){ document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama}">`).join(''); }
+function tambahKeKeranjang(){
+    const nama = document.getElementById('input-produk').value.trim();
+    const qty = parseInt(document.getElementById('input-qty').value) || 1;
+    const p = produk.find(x => x.nama === nama);
+    if (!p) return alert('Produk tidak ditemukan');
+    if(p.stok < qty) return alert('Stok tidak cukup. Sisa: ' + p.stok);
+    const item = keranjang.find(x => x.id === p.id);
+    if (item) item.qty += qty; else keranjang.push({...p, qty, tipe: 'part' });
+    tampilkanKeranjang(); document.getElementById('input-produk').value = '';
+}
+function tambahJasaKeKeranjang(){
+    const nama = document.getElementById('input-jasa').value.trim();
+    const harga = parseInt(document.getElementById('harga-jasa').value) || 0;
+    if(!nama ||!harga) return alert('Lengkapi Nama Jasa dan Harga');
+    keranjang.push({ id: Date.now(), nama, harga, qty: 1, tipe: 'jasa' });
+    tampilkanKeranjang(); document.getElementById('input-jasa').value = ''; document.getElementById('harga-jasa').value = '';
+}
+function hitungKembalian(){
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
+    const kembali = bayar - total;
+    document.getElementById('input-kembalian').value = kembali >= 0? `Rp ${kembali.toLocaleString('id-ID')}` : 'Kurang';
+}
+function tampilkanKeranjang(){
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    document.getElementById('total-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+    const el = document.getElementById('list-keranjang');
+    if (keranjang.length === 0) { el.innerText = 'Keranjang kosong'; document.getElementById('input-bayar').value=''; document.getElementById('input-kembalian').value=''; return; }
+    el.innerHTML = keranjang.map(i => `<div class="item-keranjang"><span>${i.nama} ${i.tipe === 'jasa'? '' : 'x'+i.qty}</span><div><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')} </span><button onclick="hapusKeranjang(${i.id})">X</button></div></div>`).join('');
+    hitungKembalian();
+}
+function hapusKeranjang(id){ keranjang = keranjang.filter(i => i.id!== id); tampilkanKeranjang(); }
+
+function tambahAntrian(){
+    const nopol = document.getElementById('input-nopol').value.toUpperCase().trim();
+    const motor = document.getElementById('input-motor').value.trim();
+    if (!nopol) return alert('Nopol wajib diisi');
+    antrian.push({ id: Date.now(), nopol, motor, mekanikId: null, keluhan: '', jasa: [], part: [] });
+    localStorage.setItem('antrian', JSON.stringify(antrian));
+    loadAntrian(); tutupModal('modal-antrian');
+    document.getElementById('input-nopol').value = ''; document.getElementById('input-motor').value = '';
+}
+function loadAntrian(){
+    const el = document.getElementById('list-antrian');
+    if (antrian.length === 0) { el.innerHTML = 'Belum ada antrian'; return; }
+    el.innerHTML = antrian.map(a => `<div class="item-keranjang" style="cursor:pointer" onclick="bukaDetailAntrian(${a.id})"><span><b>${a.nopol}</b> - ${a.motor}</span><button onclick="event.stopPropagation(); hapusAntrian(${a.id})">Selesai</button></div>`).join('');
+}
+function hapusAntrian(id){
+    if(!confirm('Yakin antrian ini sudah selesai dan dibayar?')) return;
+    antrian = antrian.filter(a => a.id!== id);
+    localStorage.setItem('antrian', JSON.stringify(antrian));
+    loadAntrian();
+}
+
+function bukaDetailAntrian(id){
+    antrianAktif = antrian.find(a => a.id === id);
+    if(!antrianAktif) return;
+    document.getElementById('detail-nopol').innerText = antrianAktif.nopol;
+    document.getElementById('detail-motor').innerText = antrianAktif.motor;
+    document.getElementById('select-mekanik').value = antrianAktif.mekanikId || '';
+    document.getElementById('input-keluhan').value = antrianAktif.keluhan || '';
+    loadDetailJasa(); loadDetailPart(); bukaModal('modal-detail-servis');
+}
+function simpanDetailServis(){
+    if(!antrianAktif) return;
+    antrianAktif.mekanikId = parseInt(document.getElementById('select-mekanik').value) || null;
+    antrianAktif.keluhan = document.getElementById('input-keluhan').value;
+    localStorage.setItem('antrian', JSON.stringify(antrian)); loadAntrian(); alert('Data servis tersimpan');
+}
+function loadMekanikToSelect(){
+    const el = document.getElementById('select-mekanik');
+    el.innerHTML = '<option value="">- Pilih Mekanik -</option>' + mekanik.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
+}
+function tambahJasaToAntrian(){
+    if(!antrianAktif) return;
+    const nama = document.getElementById('jasa-nama').value; const harga = parseInt(document.getElementById('jasa-harga').value);
+    if(!nama ||!harga) return alert('Lengkapi data jasa');
+    antrianAktif.jasa.push({id: Date.now(), nama, harga});
+    localStorage.setItem('antrian', JSON.stringify(antrian)); loadDetailJasa();
+    document.getElementById('jasa-nama').value = ''; document.getElementById('jasa-harga').value = '';
+}
+function loadDetailJasa(){
+    const el = document.getElementById('list-jasa-detail');
+    if(antrianAktif.jasa.length === 0) { el.innerHTML = 'Belum ada jasa'; return; }
+    el.innerHTML = antrianAktif.jasa.map(j => `<div class="item-keranjang"><span>${j.nama}</span><span>Rp ${j.harga.toLocaleString('id-ID')} <button onclick="hapusJasaAntrian(${j.id})">X</button></span></div>`).join('');
+}
+function hapusJasaAntrian(id){ antrianAktif.jasa = antrianAktif.jasa.filter(j => j.id!== id); localStorage.setItem('antrian', JSON.stringify(antrian)); loadDetailJasa(); }
+function tambahPartToAntrian(){
+    if(!antrianAktif) return;
+    const nama = document.getElementById('part-nama').value;
+    const qty = parseInt(document.getElementById('part-qty').value) || 1;
+    const p = produk.find(x => x.nama === nama);
+    if(!p) return alert('Part tidak ditemukan');
+    if(p.stok < qty) return alert('Stok tidak cukup. Sisa: ' + p.stok);
+    antrianAktif.part.push({...p, qty});
+    localStorage.setItem('antrian', JSON.stringify(antrian));
+    loadDetailPart();
+    document.getElementById('part-nama').value = '';
+}
+function loadDetailPart(){
+    const el = document.getElementById('list-part-detail');
+    if(antrianAktif.part.length === 0) { el.innerHTML = 'Belum ada part'; return; }
+    el.innerHTML = antrianAktif.part.map(p => `<div class="item-keranjang"><span>${p.nama} x${p.qty}</span><span>Rp ${(p.harga*p.qty).toLocaleString('id-ID')}</span></div>`).join('');
+}
+function pindahKeBilling(){
+    if(!antrianAktif) return;
+    keranjang = [];
+    antrianAktif.jasa.forEach(j => keranjang.push({...j, qty:1, tipe:'jasa'}));
+    antrianAktif.part.forEach(p => keranjang.push({...p, tipe:'part'}));
+    tampilkanKeranjang(); tutupModal('modal-detail-servis'); alert('Data antrian sudah dipindah ke Billing');
+}
+
+function simpanProduk(){
+    const nama = document.getElementById('nama-produk').value.trim();
+    const harga = parseInt(document.getElementById('harga-produk').value);
+    const stok = parseInt(document.getElementById('stok-produk').value) || 0;
+    if (!nama ||!harga) return alert('Lengkapi Nama dan Harga');
+    if(editId){
+        const p = produk.find(x => x.id === editId);
+        p.nama = nama; p.harga = harga; p.stok = stok;
+        editId = null;
+    } else {
+        if(produk.find(p => p.nama.toLowerCase() === nama.toLowerCase())) return alert('Nama part sudah ada');
+        produk.push({ id: Date.now(), nama, harga, stok });
+    }
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk(); loadPart(); tutupModal('modal-setting'); bukaModal('modal-setting');
+}
+function loadPart(){
+    const el = document.getElementById('list-part');
+    if (produk.length === 0) { el.innerHTML = 'Belum ada part'; return; }
+    el.innerHTML = produk.map(p => `
+        <div class="item-keranjang">
+            <span>${p.nama}</span>
+            <div>
+                <span>Stok:${p.stok} | Rp ${p.harga.toLocaleString('id-ID')}</span>
+                <button style="background:#2563eb" onclick="editProduk(${p.id})">Edit</button>
+                <button onclick="hapusProduk(${p.id})">Hapus</button>
+            </div>
+        </div>`).join('');
+    document.getElementById('part-nama').innerHTML = '<option value="">- Pilih Part -</option>' + produk.map(p => `<option value="${p.nama}">${p.nama}</option>`).join('');
+}
+function editProduk(id){
+    const p = produk.find(x => x.id === id);
+    editId = id;
+    document.getElementById('nama-produk').value = p.nama;
+    document.getElementById('harga-produk').value = p.harga;
+    document.getElementById('stok-produk').value = p.stok;
+}
+function hapusProduk(id){
+    if(!confirm('Hapus part ini?')) return;
+    produk = produk.filter(p => p.id!== id);
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk(); loadPart();
+}
+
+function simpanMekanik(){
+    const nama = document.getElementById('nama-mekanik').value.trim();
+    const potongan = parseInt(document.getElementById('potongan-mekanik').value) || 40;
+    if (!nama) return alert('Nama wajib diisi');
+    if(editId){
+        const m = mekanik.find(x => x.id === editId);
+        m.nama = nama; m.potongan = potongan;
+        editId = null;
+    } else {
+        if(mekanik.find(m => m.nama.toLowerCase() === nama.toLowerCase())) return alert('Nama mekanik sudah ada');
+        mekanik.push({ id: Date.now(), nama, potongan });
+    }
+    localStorage.setItem('mekanik', JSON.stringify(mekanik));
+    loadMekanik(); loadMekanikToSelect(); tutupModal('modal-setting'); bukaModal('modal-setting');
+}
+function loadMekanik(){
+    const el = document.getElementById('list-mekanik');
+    if (mekanik.length === 0) { el.innerHTML = 'Belum ada data'; return; }
+    el.innerHTML = mekanik.map(m => `
+        <div class="item-keranjang">
+            <span>${m.nama}</span>
+            <div>
+                <span>Potongan: ${m.potongan}%</span>
+                <button style="background:#2563eb" onclick="editMekanik(${m.id})">Edit</button>
+                <button onclick="hapusMekanik(${m.id})">Hapus</button>
+            </div>
+        </div>`).join('');
+}
+function editMekanik(id){
+    const m = mekanik.find(x => x.id === id);
+    editId = id;
+    document.getElementById('nama-mekanik').value = m.nama;
+    document.getElementById('potongan-mekanik').value = m.potongan || 40;
+}
+function hapusMekanik(id){
+    if(!confirm('Hapus mekanik ini?')) return;
+    mekanik = mekanik.filter(m => m.id!== id);
+    localStorage.setItem('mekanik', JSON.stringify(mekanik));
+    loadMekanik(); loadMekanikToSelect();
+}
+
+function simpanSetting(){
+    setting.nama = document.getElementById('setting-nama').value;
+    setting.alamat = document.getElementById('setting-alamat').value;
+    localStorage.setItem('setting', JSON.stringify(setting));
+    alert('Setting tersimpan');
+}
+
+function simpanRiwayat(total, bayar, kembali){
+    const totalJasa = keranjang.filter(i => i.tipe === 'jasa').reduce((sum, i) => sum + i.harga * i.qty, 0);
+    let gajiMekanik = 0;
+    let potonganBengkel = 0;
+    if(antrianAktif && antrianAktif.mekanikId){
+        const m = mekanik.find(x => x.id === antrianAktif.mekanikId);
+        const persenPotongan = m.potongan || 40;
+        potonganBengkel = totalJasa * (persenPotongan / 100);
+        gajiMekanik = totalJasa - potonganBengkel;
+    }
+
+    const transaksi = {
+        id: Date.now(), tanggal: new Date().toISOString(), mode: mode,
+        nopol: antrianAktif? antrianAktif.nopol : 'DIRECT PART',
+        motor: antrianAktif? antrianAktif.motor : '-',
+        mekanikId: antrianAktif? antrianAktif.mekanikId : null,
+        items: [...keranjang], total: total, bayar: bayar, kembali: kembali,
+        totalJasa: totalJasa, gajiMekanik: gajiMekanik, potonganBengkel: potonganBengkel
+    };
+    riwayat.push(transaksi);
+    localStorage.setItem('riwayat', JSON.stringify(riwayat));
+}
+
+function loadRiwayat(){
+    const tglFilter = document.getElementById('filter-tanggal').value;
+    const dataHariIni = riwayat.filter(r => r.tanggal.split('T')[0] === tglFilter);
+    const totalOmset = dataHariIni.reduce((sum, r) => sum + r.total, 0);
+    const totalTransaksi = dataHariIni.length;
+    const totalJasa = dataHariIni.reduce((sum, r) => sum + (r.totalJasa || 0), 0);
+    const totalPart = totalOmset - totalJasa;
+    const totalGajiMekanik = dataHariIni.reduce((sum, r) => sum + (r.gajiMekanik || 0), 0);
+    const totalPotongan = dataHariIni.reduce((sum, r) => sum + (r.potonganBengkel || 0), 0);
+
+    document.getElementById('ringkasan-harian').innerHTML = `Transaksi: ${totalTransaksi} | Omset: Rp ${totalOmset.toLocaleString('id-ID')}<br>Jasa: Rp ${totalJasa.toLocaleString('id-ID')} | Part: Rp ${totalPart.toLocaleString('id-ID')}<br>Gaji Mekanik: Rp ${totalGajiMekanik.toLocaleString('id-ID')} | Potongan: Rp ${totalPotongan.toLocaleString('id-ID')}`;
+
+    const el = document.getElementById('list-riwayat');
+    if(dataHariIni.length === 0) { el.innerHTML = 'Belum ada transaksi'; } else {
+        el.innerHTML = dataHariIni.reverse().map(r => {
+            const jam = new Date(r.tanggal).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+            const mekanikNama = r.mekanikId? mekanik.find(m => m.id === r.mekanikId)?.nama || '-' : '-';
+            return `<div class="item-keranjang"><div><b>${jam}</b> - ${r.nopol} <br><small>Mode: ${r.mode} | Mekanik: ${mekanikNama}</small></div><div><b>Rp ${r.total.toLocaleString('id-ID')}</b></div></div>`;
+        }).join('');
+    }
+
+    const laporanGaji = {};
+    dataHariIni.forEach(r => {
+        if(r.mekanikId){
+            if(!laporanGaji[r.mekanikId]) laporanGaji[r.mekanikId] = {total:0, jumlah:0};
+            laporanGaji[r.mekanikId].total += r.gajiMekanik || 0;
+            laporanGaji[r.mekanikId].jumlah += 1;
+        }
+    });
+    const elGaji = document.getElementById('laporan-gaji-mekanik');
+    elGaji.innerHTML = Object.keys(laporanGaji).length === 0? 'Belum ada gaji' :
+    Object.keys(laporanGaji).map(id => {
+        const m = mekanik.find(x => x.id == id);
+        return `<div class="item-keranjang"><span>${m.nama} - ${laporanGaji[id].jumlah} servis</span><b>Rp ${laporanGaji[id].total.toLocaleString('id-ID')}</b></div>`;
+    }).join('');
+}
+
+function exportData(){
+    const data = { produk, antrian, mekanik, riwayat, setting };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'backup_otopos.json'; a.click();
+}
+function handleImport(event){
+    const file = event.target.files[0]; if(!file) return; const reader = new FileReader();
+    reader.onload = function(e){
+        const data = JSON.parse(e.target.result);
+        produk = data.produk || []; antrian = data.antrian || []; mekanik = data.mekanik || []; riwayat = data.riwayat || []; setting = data.setting || setting;
+        localStorage.setItem('produk', JSON.stringify(produk)); localStorage.setItem('antrian', JSON.stringify(antrian));
+        localStorage.setItem('mekanik', JSON.stringify(mekanik)); localStorage.setItem('riwayat', JSON.stringify(riwayat)); localStorage.setItem('setting', JSON.stringify(setting));
+        alert('Import berhasil'); location.reload();
+    }; reader.readAsText(file);
+}
+
+function cetakStruk(total, bayar, kembali){
+    const area = document.getElementById('area-struk');
+    const tanggal = new Date().toLocaleString('id-ID');
+    const mekanikNama = antrianAktif && antrianAktif.mekanikId? mekanik.find(m => m.id === antrianAktif.mekanikId)?.nama || '-' : '-';
+    const nopol = antrianAktif? antrianAktif.nopol : 'DIRECT PART';
+    let listItem = '';
+    keranjang.forEach(i => { listItem += `<div class="struk-item"><span>${i.nama} ${i.tipe === 'part'? 'x'+i.qty : ''}</span><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')}</span></div>`; });
+    area.innerHTML = `<div class="struk-header"><div style="font-size:14px">${setting.nama.toUpperCase()}</div><div>${setting.alamat}</div><div class="struk-line"></div></div><div>Tanggal: ${tanggal}</div><div>Nopol: ${nopol}</div><div>Mekanik: ${mekanikNama}</div><div>Mode: ${mode.toUpperCase()}</div><div class="struk-line"></div>${listItem}<div class="struk-line"></div><div class="struk-item"><span>SUBTOTAL</span><span>Rp ${total.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>BAYAR</span><span>Rp ${bayar.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>KEMBALI</span><span>Rp ${kembali.toLocaleString('id-ID')}</span></div><div class="struk-line"></div><div style="text-align:center">Terima Kasih</div>`;
+    window.print();
+}
+
+function checkout(){
+    if(keranjang.length === 0) return alert('Keranjang kosong');
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
+    if(bayar < total) return alert('Uang bayar kurang!');
+
+    const kembali = bayar - total;
+    cetakStruk(total, bayar, kembali);
+    simpanRiwayat(total, bayar, kembali);
+
+    keranjang.filter(i => i.tipe === 'part').forEach(item => {
+        const p = produk.find(x => x.id === item.id);
+        if(p) p.stok -= item.qty;
+    });
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk();
+    loadPart();
+    if(mode === 'servis' && antrianAktif){ hapusAntrian(antrianAktif.id); }
+    keranjang = [];
+    document.getElementById('input-bayar').value = '';
+    tampilkanKeranjang();
 }
