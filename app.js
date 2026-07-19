@@ -1,151 +1,121 @@
-// DATA UTAMA
-let produk = [];
+let produk = JSON.parse(localStorage.getItem('produk')) || [];
+let antrian = JSON.parse(localStorage.getItem('antrian')) || [];
 let keranjang = [];
-let setting = { nama: 'OtoPos', alamat: 'Majalaya' };
+let mode = 'servis';
+let caraBayar = 'Tunai';
+let setting = JSON.parse(localStorage.getItem('setting')) || { nama: 'Bengkel HELICOPTER', alamat: 'Majalaya' };
 
-// LOAD & SAVE
-function loadData() {
-    produk = JSON.parse(localStorage.getItem('produk')) || [];
-    setting = JSON.parse(localStorage.getItem('setting')) || { nama: 'OtoPos', alamat: 'Majalaya' };
-}
-function saveData() {
-    localStorage.setItem('produk', JSON.stringify(produk));
-    localStorage.setItem('setting', JSON.stringify(setting));
-}
-
-// SAAT BUKA
 window.onload = function() {
-    loadData();
-    tampilkanProduk();
+    loadProduk();
+    loadAntrian();
     tampilkanKeranjang();
-    document.getElementById('nama-toko').innerText = setting.nama;
+    document.getElementById('nama-toko-header').innerText = setting.nama;
     document.getElementById('setting-nama').value = setting.nama;
     document.getElementById('setting-alamat').value = setting.alamat;
+    setMode('servis', document.getElementById('btn-servis'));
 }
 
-// MODAL
+function setMode(m, el) {
+    mode = m;
+    document.querySelectorAll('#btn-servis, #btn-part').forEach(b => {
+        b.classList.remove('bg-red-600', 'text-white');
+        b.classList.add('text-gray-500');
+    });
+    el.classList.add('bg-red-600', 'text-white');
+    el.classList.remove('text-gray-500');
+    document.getElementById('area-servis').classList.toggle('hidden', m!== 'servis');
+    document.getElementById('area-part').classList.toggle('hidden', m!== 'part');
+    document.getElementById('billing-mode').innerText = m === 'servis'? 'SERVIS' : 'PART';
+}
+
 function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-// PRODUK
-function simpanProduk() {
-    const nama = document.getElementById('nama-produk').value.trim();
-    const harga = parseInt(document.getElementById('harga-produk').value);
-    const stok = parseInt(document.getElementById('stok-produk').value);
-    if (!nama ||!harga) return alert('Nama dan Harga wajib diisi');
-
-    produk.push({ id: Date.now(), nama, harga, stok });
-    saveData();
-    tampilkanProduk();
-    tutupModal('modal-produk');
-    alert('Produk berhasil disimpan');
-
-    document.getElementById('nama-produk').value = '';
-    document.getElementById('harga-produk').value = '';
-    document.getElementById('stok-produk').value = '0';
+// ANTRIAN
+function tambahAntrian() {
+    const nopol = document.getElementById('input-nopol').value.toUpperCase();
+    const motor = document.getElementById('input-motor').value;
+    if (!nopol) return alert('Nopol wajib');
+    antrian.push({ id: Date.now(), nopol, motor });
+    localStorage.setItem('antrian', JSON.stringify(antrian));
+    loadAntrian();
+    tutupModal('modal-antrian');
 }
-
-function tampilkanProduk() {
-    document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama}">`).join('');
-
-    if (produk.length === 0) {
-        document.getElementById('list-produk-tampil').innerHTML = '<p style="color:gray">Belum ada produk</p>';
+function loadAntrian() {
+    const el = document.getElementById('list-antrian');
+    if (antrian.length === 0) {
+        el.innerHTML = 'Belum ada antrian. Klik + Tambah Antrian';
+        el.className = "min-h-[150px] flex items-center justify-center text-gray-400";
         return;
     }
-    document.getElementById('list-produk-tampil').innerHTML = produk.map(p => `
-        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:8px 0;">
-            <div>
-                <p style="font-weight:bold">${p.nama}</p>
-                <p style="font-size:12px; color:gray">Stok: ${p.stok} | Rp ${p.harga.toLocaleString('id-ID')}</p>
-            </div>
-        </div>
-    `).join('');
+    el.className = "";
+    el.innerHTML = antrian.map(a => `<div class="p-2 border-b">${a.nopol} - ${a.motor}</div>`).join('');
+}
+
+// PRODUK
+function loadProduk() {
+    document.getElementById('list-produk').innerHTML = produk.map(p => `<option value="${p.nama} - Stok:${p.stok}">`).join('');
+}
+function simpanProduk() {
+    const nama = document.getElementById('nama-produk').value;
+    const harga = parseInt(document.getElementById('harga-produk').value);
+    const stok = parseInt(document.getElementById('stok-produk').value);
+    if (!nama ||!harga) return alert('Lengkapi data');
+    produk.push({ id: Date.now(), nama, harga, stok });
+    localStorage.setItem('produk', JSON.stringify(produk));
+    loadProduk();
+    tutupModal('modal-produk');
+    alert('Produk tersimpan');
 }
 
 // KERANJANG
-function tambahKeranjang() {
-    const nama = document.getElementById('input-produk').value;
+document.getElementById('input-produk').addEventListener('change', function() {
+    const val = this.value;
+    const nama = val.split(' - ')[0];
     const qty = parseInt(document.getElementById('input-qty').value);
     const p = produk.find(x => x.nama === nama);
-
-    if (!p) return alert('Produk tidak ditemukan');
-    if (p.stok < qty) return alert('Stok tidak cukup');
-
+    if (!p) return;
+    if (p.stok < qty) return alert('Stok habis');
+    
     const item = keranjang.find(x => x.id === p.id);
-    if (item) item.qty += qty;
-    else keranjang.push({...p, qty });
-
+    if (item) item.qty += qty; else keranjang.push({...p, qty });
     p.stok -= qty;
-    saveData();
-    tampilkanProduk();
+    localStorage.setItem('produk', JSON.stringify(produk));
+    
+    loadProduk();
     tampilkanKeranjang();
-
-    document.getElementById('input-produk').value = '';
+    this.value = '';
     document.getElementById('input-qty').value = '1';
-}
+});
 
 function tampilkanKeranjang() {
-    const total = keranjang.reduce((sum, item) => sum + item.harga * item.qty, 0);
+    const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     document.getElementById('total-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
-
-    if (keranjang.length === 0) {
-        document.getElementById('list-keranjang').innerHTML = '<p style="color:gray">Keranjang kosong</p>';
-        return;
-    }
-    document.getElementById('list-keranjang').innerHTML = keranjang.map(item => `
-        <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:4px;">
-            <span>${item.nama} x${item.qty}</span>
-            <span>Rp ${(item.harga * item.qty).toLocaleString('id-ID')}</span>
-        </div>
-    `).join('');
+    const el = document.getElementById('list-keranjang');
+    if (keranjang.length === 0) { el.innerText = 'Keranjang kosong'; return; }
+    el.innerHTML = keranjang.map(i => `<div class="flex justify-between"><span>${i.nama} x${i.qty}</span><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')}</span></div>`).join('');
 }
 
-// SETTING
+// BAYAR & SETTING
+function setBayar(m, el) {
+    caraBayar = m;
+    document.querySelectorAll('.btn-bayar').forEach(b => {
+        b.classList.remove('border-emerald-500', 'text-emerald-400');
+        b.classList.add('border-slate-700', 'text-slate-400');
+    });
+    el.classList.add('border-emerald-500', 'text-emerald-400');
+}
 function simpanSetting() {
     setting.nama = document.getElementById('setting-nama').value;
     setting.alamat = document.getElementById('setting-alamat').value;
-    saveData();
-    document.getElementById('nama-toko').innerText = setting.nama;
+    localStorage.setItem('setting', JSON.stringify(setting));
+    document.getElementById('nama-toko-header').innerText = setting.nama;
     alert('Setting tersimpan');
     tutupModal('modal-setting');
 }
-
-// BACKUP & RESTORE
-function exportData() {
-    const data = { produk, setting, tanggal: new Date().toLocaleString('id-ID') };
-    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'backup-otopos.json';
-    a.click();
-    alert('Backup berhasil di download');
-}
-
-function importData() {
-    document.getElementById('input-file').click();
-}
-function handleImport(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            produk = data.produk || [];
-            setting = data.setting || setting;
-            saveData();
-            window.location.reload();
-            alert('Restore berhasil');
-        } catch { alert('File rusak'); }
-    };
-    reader.readAsText(file);
-}
-
-// CHECKOUT
 function checkout() {
     if (keranjang.length === 0) return alert('Keranjang kosong');
-    const total = keranjang.reduce((sum, item) => sum + item.harga * item.qty, 0);
-    alert('Transaksi Rp ' + total.toLocaleString('id-ID') + ' berhasil');
+    alert(`Checkout ${caraBayar} berhasil Rp ${keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0).toLocaleString('id-ID')}`);
     keranjang = [];
     tampilkanKeranjang();
 }
