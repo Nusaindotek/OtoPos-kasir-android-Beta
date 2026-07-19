@@ -52,6 +52,12 @@
             <span>TOTAL</span>
             <span id="total-harga">Rp 0</span>
         </div>
+        <div id="area-bayar">
+            <div class="row">
+                <input type="number" id="input-bayar" placeholder="Uang Bayar" onkeyup="hitungKembalian()">
+                <input type="text" id="input-kembalian" placeholder="Kembalian" readonly>
+            </div>
+        </div>
         <button class="btn btn-green btn-besar" onclick="checkout()">SELESAI & CETAK</button>
     </div>
 
@@ -111,8 +117,10 @@
                 <button class="btn btn-orange" onclick="simpanProduk()">Simpan Part</button><hr>
                 <div id="list-part"></div>
             </div>
+            <!-- TAB MEKANIK UDAH ADA POTONGAN % -->
             <div id="tab-mekanik" class="tab-content">
                 <input id="nama-mekanik" placeholder="Nama Mekanik">
+                <input id="potongan-mekanik" type="number" placeholder="Potongan Bengkel %" value="40">
                 <button class="btn btn-blue" onclick="simpanMekanik()">Simpan Mekanik</button><hr>
                 <div id="list-mekanik"></div>
             </div>
@@ -123,6 +131,9 @@
                 </div>
                 <div id="ringkasan-harian" style="margin:10px 0; font-weight:bold"></div>
                 <div id="list-riwayat" style="max-height: 300px; overflow-y: auto;"></div>
+                <hr>
+                <h4>Laporan Gaji Mekanik</h4>
+                <div id="laporan-gaji-mekanik"></div>
             </div>
             <div id="tab-data" class="tab-content">
                 <button class="btn btn-green" onclick="exportData()">⬇️ EXPORT DATA</button>
