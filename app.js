@@ -29,7 +29,7 @@ function bukaModal(id){
 
 function tutupModal(id){
     document.getElementById(id).classList.add('hidden');
-    if(id !== 'modal-detail-servis') {
+    if(id!== 'modal-detail-servis') {
         antrianAktif = null;
     }
     editProdukId = null;
@@ -92,7 +92,7 @@ function tambahKeKeranjang(){
 function tambahJasaKeKeranjang(){
     const nama = document.getElementById('input-jasa').value.trim();
     const harga = parseInt(document.getElementById('harga-jasa').value) || 0;
-    if(!nama || !harga) return alert('Lengkapi Nama Jasa dan Harga');
+    if(!nama ||!harga) return alert('Lengkapi Nama Jasa dan Harga');
     keranjang.push({ id: Date.now(), nama, harga, qty: 1, tipe: 'jasa' });
 
     document.getElementById('btn-part').disabled = true;
@@ -105,7 +105,7 @@ function hitungKembalian(){
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
     const kembali = bayar - total;
-    document.getElementById('input-kembalian').value = kembali >= 0 ? `Rp ${kembali.toLocaleString('id-ID')}` : 'Kurang';
+    document.getElementById('input-kembalian').value = kembali >= 0? `Rp ${kembali.toLocaleString('id-ID')}` : 'Kurang';
 }
 
 function tampilkanKeranjang(){
@@ -125,7 +125,7 @@ function tampilkanKeranjang(){
 }
 
 function hapusKeranjang(id){ 
-    keranjang = keranjang.filter(i => i.id !== id); 
+    keranjang = keranjang.filter(i => i.id!== id); 
     tampilkanKeranjang(); 
 }
 
@@ -144,7 +144,7 @@ function loadAntrian(){
     if (antrian.length === 0) { el.innerHTML = 'Belum ada antrian'; return; }
     el.innerHTML = antrian.map(a => {
         const mek = mekanik.find(m => m.id === parseInt(a.mekanikId));
-        const namaMekanik = mek ? mek.nama : 'Belum Dipilih';
+        const namaMekanik = mek? mek.nama : 'Belum Dipilih';
         return `<div class="item-keranjang" style="cursor:pointer" onclick="bukaDetailAntrian(${a.id})">
             <span><b>${a.nopol}</b> - ${a.motor} <br><small style="color:#64748b">Mekanik: ${namaMekanik}</small></span>
             <button onclick="event.stopPropagation(); hapusAntrian(${a.id})">Hapus</button>
@@ -154,7 +154,7 @@ function loadAntrian(){
 
 function hapusAntrian(id){
     if(!confirm('Hapus antrian ini dari daftar?')) return;
-    antrian = antrian.filter(a => a.id !== id);
+    antrian = antrian.filter(a => a.id!== id);
     localStorage.setItem('antrian', JSON.stringify(antrian));
     loadAntrian();
 }
@@ -187,7 +187,7 @@ function tambahJasaToAntrian(){
     if(!antrianAktif) return;
     const nama = document.getElementById('jasa-nama').value; 
     const harga = parseInt(document.getElementById('jasa-harga').value);
-    if(!nama || !harga) return alert('Lengkapi data jasa');
+    if(!nama ||!harga) return alert('Lengkapi data jasa');
     antrianAktif.jasa.push({id: Date.now(), nama, harga});
     localStorage.setItem('antrian', JSON.stringify(antrian)); loadDetailJasa();
     document.getElementById('jasa-nama').value = ''; document.getElementById('jasa-harga').value = '';
@@ -199,7 +199,7 @@ function loadDetailJasa(){
     el.innerHTML = antrianAktif.jasa.map(j => `<div class="item-keranjang"><span>${j.nama}</span><span>Rp ${j.harga.toLocaleString('id-ID')} <button onclick="hapusJasaAntrian(${j.id})">X</button></span></div>`).join('');
 }
 
-function hapusJasaAntrian(id){ antrianAktif.jasa = antrianAktif.jasa.filter(j => j.id !== id); localStorage.setItem('antrian', JSON.stringify(antrian)); loadDetailJasa(); }
+function hapusJasaAntrian(id){ antrianAktif.jasa = antrianAktif.jasa.filter(j => j.id!== id); localStorage.setItem('antrian', JSON.stringify(antrian)); loadDetailJasa(); }
 
 function tambahPartToAntrian(){
     if(!antrianAktif) return;
@@ -233,7 +233,7 @@ function simpanProduk(){
     const nama = document.getElementById('nama-produk').value.trim();
     const harga = parseInt(document.getElementById('harga-produk').value);
     const stok = parseInt(document.getElementById('stok-produk').value) || 0;
-    if (!nama || !harga) return alert('Lengkapi Nama dan Harga');
+    if (!nama ||!harga) return alert('Lengkapi Nama dan Harga');
     if(editProdukId){
         const p = produk.find(x => x.id === editProdukId);
         p.nama = nama; p.harga = harga; p.stok = stok;
@@ -271,7 +271,7 @@ function editProduk(id){
 
 function hapusProduk(id){
     if(!confirm('Hapus part ini?')) return;
-    produk = produk.filter(p => p.id !== id);
+    produk = produk.filter(p => p.id!== id);
     localStorage.setItem('produk', JSON.stringify(produk));
     loadProduk(); loadPart();
 }
@@ -312,7 +312,7 @@ function editMekanik(id){
 
 function hapusMekanik(id){
     if(!confirm('Hapus mekanik ini?')) return;
-    mekanik = mekanik.filter(m => m.id !== id);
+    mekanik = mekanik.filter(m => m.id!== id);
     localStorage.setItem('mekanik', JSON.stringify(mekanik));
     loadMekanik(); loadMekanikToSelect(); loadGajiMekanik();
 }
@@ -349,15 +349,15 @@ function simpanSetting(){
 }
 
 function simpanRiwayat(total, bayar, kembali){
-    const mekanikObj = mekanik.find(m => m.id === (antrianAktif ? parseInt(antrianAktif.mekanikId) : null));
+    const mekanikObj = mekanik.find(m => m.id === (antrianAktif? parseInt(antrianAktif.mekanikId) : null));
     const transaksi = {
         id: Date.now(), 
         tanggal: new Date().toISOString(), 
         mode: mode,
-        nopol: antrianAktif ? antrianAktif.nopol : 'DIRECT PART',
-        motor: antrianAktif ? antrianAktif.motor : '-',
-        mekanikId: antrianAktif ? antrianAktif.mekanikId : null,
-        namaMekanik: mekanikObj ? mekanikObj.nama : '-',
+        nopol: antrianAktif? antrianAktif.nopol : 'DIRECT PART',
+        motor: antrianAktif? antrianAktif.motor : '-',
+        mekanikId: antrianAktif? antrianAktif.mekanikId : null,
+        namaMekanik: mekanikObj? mekanikObj.nama : '-',
         items: [...keranjang], 
         total: total, 
         bayar: bayar, 
@@ -403,17 +403,24 @@ function handleImport(event){
 function cetakStruk(total, bayar, kembali){
     const area = document.getElementById('area-struk');
     const tanggal = new Date().toLocaleString('id-ID');
-    const mekanikObj = mekanik.find(m => m.id === (antrianAktif ? parseInt(antrianAktif.mekanikId) : null));
-    const namaMek = mekanikObj ? mekanikObj.nama : '-';
-    const nopol = antrianAktif ? antrianAktif.nopol : 'DIRECT PART';
+    const mekanikObj = mekanik.find(m => m.id === (antrianAktif? parseInt(antrianAktif.mekanikId) : null));
+    const namaMek = mekanikObj? mekanikObj.nama : '-'; // FIX 1: nama variabel
+    const nopol = antrianAktif? antrianAktif.nopol : 'DIRECT PART';
     let listItem = '';
     keranjang.forEach(i => { listItem += `<div class="struk-item"><span>${i.nama} ${i.tipe === 'part'? 'x'+i.qty : ''}</span><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')}</span></div>`; });
-    area.innerHTML = `<div class="struk-header"><div style="font-size:14px">${setting.nama.toUpperCase()}</div><div>${setting.alamat}</div><div class="struk-line"></div></div><div>Tanggal: ${tanggal}</div><div>Nopol: ${nopol}</div><div>Mekanik: ${namaMekanik}</div><div>Mode: ${mode.toUpperCase()}</div><div class="struk-line"></div>${listItem}<div class="struk-line"></div><div class="struk-item"><span>SUBTOTAL</span><span>Rp ${total.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>BAYAR</span><span>Rp ${bayar.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>KEMBALI</span><span>Rp ${kembali.toLocaleString('id-ID')}</span></div><div class="struk-line"></div><div style="text-align:center">Terima Kasih</div>`;
+    area.innerHTML = `<div class="struk-header"><div style="font-size:14px">${setting.nama.toUpperCase()}</div><div>${setting.alamat}</div><div class="struk-line"></div></div><div>Tanggal: ${tanggal}</div><div>Nopol: ${nopol}</div><div>Mekanik: ${namaMek}</div><div>Mode: ${mode.toUpperCase()}</div><div class="struk-line"></div>${listItem}<div class="struk-line"></div><div class="struk-item"><span>SUBTOTAL</span><span>Rp ${total.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>BAYAR</span><span>Rp ${bayar.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>KEMBALI</span><span>Rp ${kembali.toLocaleString('id-ID')}</span></div><div class="struk-line"></div><div style="text-align:center">Terima Kasih</div>`;
     window.print();
 }
 
 function checkout(){
     if(keranjang.length === 0) return alert('Keranjang kosong');
+    
+    // FIX 2: VALIDASI WAJIB MEKANIK
+    if(mode === 'servis'){
+        if(!antrianAktif) return alert('Buka dulu antrian dari daftar');
+        if(!antrianAktif.mekanikId) return alert('Pilih Mekanik dulu bang!');
+    }
+
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
     if(bayar < total) return alert('Uang bayar kurang!');
@@ -442,7 +449,7 @@ function checkout(){
     loadPart();
 
     if(mode === 'servis' && antrianAktif){ 
-        antrian = antrian.filter(a => a.id !== antrianAktif.id);
+        antrian = antrian.filter(a => a.id!== antrianAktif.id);
         localStorage.setItem('antrian', JSON.stringify(antrian));
         loadAntrian();
     }
@@ -455,3 +462,5 @@ function checkout(){
     document.getElementById('input-bayar').value = '';
     tampilkanKeranjang();
 }
+
+window.onload = init;
