@@ -7,14 +7,11 @@ let mode = 'servis';
 let setting = JSON.parse(localStorage.getItem('setting')) || { nama: 'OTOPOS', alamat: '' };
 let antrianAktif = null;
 
-// Perbaikan: Memisahkan ID edit agar tidak bentrok antar-tab
 let editProdukId = null;
 let editMekanikId = null;
 
 function init(){
-    // Perbaikan: Sinkronisasi nama toko langsung ke banner atas aplikasi
     document.getElementById('header-toko').innerText = '🔧 ' + setting.nama.toUpperCase();
-    
     loadProduk(); loadAntrian(); loadPart(); loadMekanikToSelect(); loadMekanik(); loadGajiMekanik();
     tampilkanKeranjang(); setMode('servis');
     document.getElementById('setting-nama').value = setting.nama;
@@ -32,7 +29,6 @@ function bukaModal(id){
 
 function tutupModal(id){
     document.getElementById(id).classList.add('hidden');
-    // Jika modal detail servis ditutup tanpa checkout, status antrianAktif JANGAN di-null agar data tidak hilang ditengah jalan jika kasir kembali membuka.
     if(id !== 'modal-detail-servis') {
         antrianAktif = null;
     }
@@ -51,7 +47,6 @@ function showTab(id, el){
     el.classList.add('tab-active');
 }
 
-// Fitur Lock Mode Terintegrasi
 function setMode(m){
     mode = m;
     const btnServis = document.getElementById('btn-servis');
@@ -87,10 +82,9 @@ function tambahKeKeranjang(){
     if(p.stok < qty) return alert('Stok tidak cukup. Sisa: ' + p.stok);
     const item = keranjang.find(x => x.id === p.id);
     if (item) item.qty += qty; else keranjang.push({...p, qty, tipe: 'part' });
-    
-    // Lock Mode Trigger: Jika item masuk keranjang, kunci perpindahan mode kasir
-    if(mode === 'servis') document.getElementById('btn-part').disabled = true;
-    if(mode === 'part') document.getElementById('btn-servis').disabled = true;
+
+    document.getElementById('btn-part').disabled = true;
+    document.getElementById('btn-servis').disabled = true;
 
     tampilkanKeranjang(); document.getElementById('input-produk').value = '';
 }
@@ -100,9 +94,9 @@ function tambahJasaKeKeranjang(){
     const harga = parseInt(document.getElementById('harga-jasa').value) || 0;
     if(!nama || !harga) return alert('Lengkapi Nama Jasa dan Harga');
     keranjang.push({ id: Date.now(), nama, harga, qty: 1, tipe: 'jasa' });
-    
-    // Lock Mode Trigger
+
     document.getElementById('btn-part').disabled = true;
+    document.getElementById('btn-servis').disabled = true;
 
     tampilkanKeranjang(); document.getElementById('input-jasa').value = ''; document.getElementById('harga-jasa').value = '';
 }
@@ -122,7 +116,6 @@ function tampilkanKeranjang(){
         el.innerText = 'Keranjang kosong'; 
         document.getElementById('input-bayar').value=''; 
         document.getElementById('input-kembalian').value=''; 
-        // Buka kembali lock jika keranjang kosong total
         document.getElementById('btn-servis').disabled = false;
         document.getElementById('btn-part').disabled = false;
         return; 
@@ -146,7 +139,6 @@ function tambahAntrian(){
     document.getElementById('input-nopol').value = ''; document.getElementById('input-motor').value = '';
 }
 
-// Perbaikan UI: Menampilkan nama mekanik langsung di daftar antrian utama
 function loadAntrian(){
     const el = document.getElementById('list-antrian');
     if (antrian.length === 0) { el.innerHTML = 'Belum ada antrian'; return; }
@@ -233,10 +225,7 @@ function pindahKeBilling(){
     keranjang = [];
     antrianAktif.jasa.forEach(j => keranjang.push({...j, qty:1, tipe:'jasa'}));
     antrianAktif.part.forEach(p => keranjang.push({...p, tipe:'part'}));
-    
-    // Kunci tombol direct part karena data servis masuk kasir billing
     document.getElementById('btn-part').disabled = true;
-
     tampilkanKeranjang(); tutupModal('modal-detail-servis'); alert('Data antrian sudah dipindah ke Billing');
 }
 
@@ -245,7 +234,6 @@ function simpanProduk(){
     const harga = parseInt(document.getElementById('harga-produk').value);
     const stok = parseInt(document.getElementById('stok-produk').value) || 0;
     if (!nama || !harga) return alert('Lengkapi Nama dan Harga');
-    
     if(editProdukId){
         const p = produk.find(x => x.id === editProdukId);
         p.nama = nama; p.harga = harga; p.stok = stok;
@@ -291,14 +279,12 @@ function hapusProduk(id){
 function simpanMekanik(){
     const nama = document.getElementById('nama-mekanik').value.trim();
     if (!nama) return alert('Nama wajib diisi');
-    
     if(editMekanikId){
         const m = mekanik.find(x => x.id === editMekanikId);
         m.nama = nama;
         editMekanikId = null;
     } else {
         if(mekanik.find(m => m.nama.toLowerCase() === nama.toLowerCase())) return alert('Nama mekanik sudah ada');
-        // Fitur Gaji Baru: Menambahkan saldoGaji mula-mula senilai 0
         mekanik.push({ id: Date.now(), nama, saldoGaji: 0 });
     }
     localStorage.setItem('mekanik', JSON.stringify(mekanik));
@@ -331,7 +317,6 @@ function hapusMekanik(id){
     loadMekanik(); loadMekanikToSelect(); loadGajiMekanik();
 }
 
-// Fitur Baru: Menampilkan saldo akumulasi pendapatan jasa mekanik berjalan
 function loadGajiMekanik(){
     const el = document.getElementById('list-gaji');
     if (!el) return;
@@ -346,7 +331,6 @@ function loadGajiMekanik(){
         </div>`).join('');
 }
 
-// Fitur Baru: Reset gaji berjalan saat diserahkan hari minggu
 function resetGaji(id){
     const m = mekanik.find(x => x.id === id);
     if(!m) return;
@@ -373,7 +357,7 @@ function simpanRiwayat(total, bayar, kembali){
         nopol: antrianAktif ? antrianAktif.nopol : 'DIRECT PART',
         motor: antrianAktif ? antrianAktif.motor : '-',
         mekanikId: antrianAktif ? antrianAktif.mekanikId : null,
-        namaMekanik: mekanikObj ? mekanikObj.nama : '-', // Keamanan Audit Trail Data
+        namaMekanik: mekanikObj ? mekanikObj.nama : '-',
         items: [...keranjang], 
         total: total, 
         bayar: bayar, 
@@ -424,7 +408,7 @@ function cetakStruk(total, bayar, kembali){
     const nopol = antrianAktif ? antrianAktif.nopol : 'DIRECT PART';
     let listItem = '';
     keranjang.forEach(i => { listItem += `<div class="struk-item"><span>${i.nama} ${i.tipe === 'part'? 'x'+i.qty : ''}</span><span>Rp ${(i.harga*i.qty).toLocaleString('id-ID')}</span></div>`; });
-    area.innerHTML = `<div class="struk-header"><div style="font-size:14px">${setting.nama.toUpperCase()}</div><div>${setting.alamat}</div><div class="struk-line"></div></div><div>Tanggal: ${tanggal}</div><div>Nopol: ${nopol}</div><div>Mekanik: ${namaMek}</div><div>Mode: ${mode.toUpperCase()}</div><div class="struk-line"></div>${listItem}<div class="struk-line"></div><div class="struk-item"><span>SUBTOTAL</span><span>Rp ${total.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>BAYAR</span><span>Rp ${bayar.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>KEMBALI</span><span>Rp ${kembali.toLocaleString('id-ID')}</span></div><div class="struk-line"></div><div style="text-align:center">Terima Kasih</div>`;
+    area.innerHTML = `<div class="struk-header"><div style="font-size:14px">${setting.nama.toUpperCase()}</div><div>${setting.alamat}</div><div class="struk-line"></div></div><div>Tanggal: ${tanggal}</div><div>Nopol: ${nopol}</div><div>Mekanik: ${namaMekanik}</div><div>Mode: ${mode.toUpperCase()}</div><div class="struk-line"></div>${listItem}<div class="struk-line"></div><div class="struk-item"><span>SUBTOTAL</span><span>Rp ${total.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>BAYAR</span><span>Rp ${bayar.toLocaleString('id-ID')}</span></div><div class="struk-item"><span>KEMBALI</span><span>Rp ${kembali.toLocaleString('id-ID')}</span></div><div class="struk-line"></div><div style="text-align:center">Terima Kasih</div>`;
     window.print();
 }
 
@@ -433,10 +417,9 @@ function checkout(){
     const total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
     const bayar = parseInt(document.getElementById('input-bayar').value) || 0;
     if(bayar < total) return alert('Uang bayar kurang!');
-
     const kembali = bayar - total;
 
-    // Perbaikan Fitur: Distribusi Pemasukan Jasa ke Gaji Berjalan Mekanik Sebelum Hapus Antrian
+    // DISTRIBUSI GAJI MEKANIK
     if(mode === 'servis' && antrianAktif && antrianAktif.mekanikId){
         const totalJasaDariKeranjang = keranjang.filter(i => i.tipe === 'jasa').reduce((sum, item) => sum + (item.harga * item.qty), 0);
         let mek = mekanik.find(m => m.id === parseInt(antrianAktif.mekanikId));
@@ -453,22 +436,20 @@ function checkout(){
         const p = produk.find(x => x.id === item.id);
         if(p) p.stok -= item.qty;
     });
-    
+
     localStorage.setItem('produk', JSON.stringify(produk));
     loadProduk();
     loadPart();
-    
+
     if(mode === 'servis' && antrianAktif){ 
-        // Hapus antrian yang aktif secara riil dari list local storage
         antrian = antrian.filter(a => a.id !== antrianAktif.id);
         localStorage.setItem('antrian', JSON.stringify(antrian));
         loadAntrian();
     }
-    
-    // Transaksi selesai, unlock status tombol kembali
+
     document.getElementById('btn-servis').disabled = false;
     document.getElementById('btn-part').disabled = false;
-    
+
     keranjang = [];
     antrianAktif = null;
     document.getElementById('input-bayar').value = '';
